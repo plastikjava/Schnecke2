@@ -17,6 +17,11 @@
     
     <title>Bildungsbereiche Beobachtungsbogen</title>
     
+    <!-- PDF.js für PDF-Import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- Einfachere PDF-Export Lösung ohne externe Libraries -->
+    
     <style>
         * {
             margin: 0;
@@ -204,11 +209,50 @@
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
         
-        .mode-selector {
+        .view-selector {
             display: flex;
             justify-content: center;
             gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .view-btn {
+            padding: 12px 25px;
+            border: 2px solid;
+            border-radius: 20px;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn.schnecke {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .view-btn.schnecke.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .view-btn.liste {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .view-btn.liste.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .mode-btn {
@@ -241,6 +285,44 @@
             background: #FFC700;
             color: #333;
             border-color: #FFC700;
+        }
+        
+        .mode-btn.light-yellow-mode {
+            border-color: #06b6d4;
+            color: #06b6d4;
+        }
+        
+        .mode-btn.light-yellow-mode.active {
+            background: #06b6d4;
+            color: white;
+            border-color: #06b6d4;
+        }
+        
+        .test-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            background: white;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .test-btn:active {
+            transform: scale(0.95);
         }
         
         .wheel-container {
@@ -343,6 +425,17 @@
         
         .field.yellow .field-text {
             fill: #333;
+            font-weight: 800;
+        }
+        
+        .field.lightyellow {
+            fill: #06b6d4;
+            stroke: #06b6d4;
+            filter: drop-shadow(0 2px 6px rgba(6, 182, 212, 0.4));
+        }
+        
+        .field.lightyellow .field-text {
+            fill: white;
             font-weight: 800;
         }
         
@@ -537,6 +630,210 @@
             opacity: 1;
         }
         
+        /* Einfacher Sticky Header - immer fixiert in Listen-Ansicht */
+        .list-container {
+            /* No extra padding needed with position: sticky */
+        }
+        
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 15px 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        /* Sticky header nur in Listen-Ansicht aktiv */
+        .sticky-header:not(.list-active) {
+            position: relative;
+            box-shadow: none;
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .sticky-header .container-content {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Listen-Ansicht Styles */
+        .list-container {
+            width: 100%;
+            max-width: 900px;
+        }
+        
+        .list-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .list-header h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        
+        .list-info {
+            color: #666;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .competency-section {
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            padding: 15px 20px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-header.spielen { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .section-header.sprechen { background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%); }
+        .section-header.denken { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        .section-header.bewegung { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+        .section-header.lebenspraxis { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+        .section-header.soziales { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        
+        .competency-item-list {
+            background: white;
+        }
+        
+        .competency-item-row {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: background 0.2s ease;
+        }
+        
+        .competency-item-row:hover {
+            background: #f9f9f9;
+        }
+        
+        .competency-item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .competency-number {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 35px;
+            font-size: 14px;
+        }
+        
+        .competency-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .competency-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        .competency-row-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .competency-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .competency-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .comp-btn {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .comp-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .comp-btn.half {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .comp-btn.full {
+            border-color: #059669;
+            color: #059669;
+        }
+        
+        .comp-btn.reset {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .competency-row-bottom {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .test-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        .notes-input {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 12px;
+            background: #f9f9f9;
+        }
+        
+        .notes-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
         @media (max-width: 600px) {
             .field-text {
                 font-size: 7px;
@@ -553,11 +850,34 @@
             h1 {
                 font-size: 24px;
             }
+            
+            .competency-item-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .competency-controls {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .view-selector {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Sticky Header für Listen-Ansicht -->
+        <div class="sticky-header" id="stickyHeader">
+            <div class="container-content">
         <h1>Bildungsbereiche Beobachtungsbogen</h1>
         <div class="info">Tippen Sie auf ein Feld zum Markieren • Halb gefüllt → Voll gefüllt → Leer</div>
         
@@ -570,16 +890,36 @@
             <button class="profile-btn delete-profile-btn" onclick="deleteCurrentProfile()">🗑️ Löschen</button>
         </div>
         
+        <!-- View Mode Selector -->
+        <div class="view-selector">
+            <button class="view-btn schnecke active" onclick="setView('schnecke')">
+                🌀 Schnecken-Ansicht
+            </button>
+            <button class="view-btn liste" onclick="setView('liste')">
+                📋 Listen-Ansicht
+            </button>
+        </div>
+        
         <div class="mode-selector">
             <button class="mode-btn normal active" onclick="setMode('normal')">
                 🎨 Normal-Modus
             </button>
             <button class="mode-btn yellow-mode" onclick="setMode('yellow')">
-                ⭐ Gelb-Modus (Fortschritt)
+                ⭐ Gelb-Modus (2. Jahr)
+            </button>
+            <button class="mode-btn light-yellow-mode" onclick="setMode('lightyellow')">
+                📍 Türkis-Modus (3. Jahr)
             </button>
         </div>
         
-        <div class="wheel-container" id="wheelContainer">
+        <!-- Test-Controls nur in Listen-Ansicht -->
+        <div class="test-controls" id="testControls" style="display: none;">
+            <button class="test-btn" onclick="clearAllTests()">
+                🗴️ Alle Test-Häkchen entfernen
+            </button>
+        </div>
+        
+        <div class="wheel-container" id="wheelContainer" style="display: block;">
             <svg id="svgContainer" viewBox="0 0 700 700">
                 <defs>
                     <linearGradient id="centerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -594,6 +934,19 @@
             </svg>
             <input type="text" class="center-input" id="nameInput" placeholder="NAME" maxlength="15" readonly>
         </div>
+            </div> <!-- container-content -->
+        </div> <!-- Ende Sticky Header -->
+        
+        <!-- Listen-Ansicht -->
+        <div class="list-container" id="listContainer" style="display: none;">
+            <div class="list-header">
+                <h3>Kompetenz-Liste</h3>
+                <div class="list-info">Schritt für Schritt durch alle 169 Kompetenzen</div>
+            </div>
+            <div class="competency-sections" id="competencySections">
+                <!-- Dynamisch erstellt -->
+            </div>
+        </div>
         
         <div class="controls">
             <button onclick="resetAll()">Alle zurücksetzen</button>
@@ -604,8 +957,21 @@
             <button onclick="exportTableHTML()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
                 📊 Tabelle
             </button>
-            <label for="fileInput" class="file-label">Daten importieren</label>
+            <button onclick="exportSchneckeSVG()" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                🖼️ SVG Schnecke
+            </button>
+            <button onclick="printSchnecke()" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                🖨️ Drucken
+            </button>
+            <button onclick="exportTestCompetencies()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                📝 Test-Liste
+            </button>
+            <label for="fileInput" class="file-label">📄 JSON importieren</label>
             <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+            <label for="pdfInput" class="file-label" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+                🔄 PDF Schnecke importieren
+            </label>
+            <input type="file" id="pdfInput" accept=".pdf" onchange="importPDFSchnecke(event)" style="display: none;">
         </div>
         
         <div class="legend">
@@ -618,7 +984,7 @@
                 <span>Sprechen, Hören, Sehen (39-61)</span>
             </div>
             <div class="legend-item">
-                <div class="legend-dot" style="background: #3b82f6;"></div>
+                <div class="legend-dot" style="background: #059669;"></div>
                 <span>Denken (62-90)</span>
             </div>
             <div class="legend-item">
@@ -626,7 +992,7 @@
                 <span>Bewegung (91-114)</span>
             </div>
             <div class="legend-item">
-                <div class="legend-dot" style="background: #8b5cf6;"></div>
+                <div class="legend-dot" style="background: #06b6d4;"></div>
                 <span>Lebenspraxis (115-143)</span>
             </div>
             <div class="legend-item">
@@ -670,6 +1036,9 @@
         let currentMode = 'normal';
         let currentProfile = null;
         let profiles = {};
+        let currentView = 'schnecke';
+        let competencyNotes = {};
+        let competencyTests = {};
         
         // Alle 169 Kompetenzen
         const kompetenzen = {
@@ -882,13 +1251,15 @@
             document.getElementById('kompetenzenModal').classList.remove('show');
         }
         
-        // iOS-kompatible Export-Funktionen
+        // Verbesserter JSON-Export mit echtem Download
         function exportDataIOS() {
             const data = {
                 version: "5.0",
                 timestamp: new Date().toISOString(),
                 name: currentProfile || document.getElementById('nameInput').value || '',
-                fields: {}
+                fields: {},
+                notes: currentProfile && competencyNotes[currentProfile] ? competencyNotes[currentProfile] : {},
+                tests: currentProfile && competencyTests[currentProfile] ? competencyTests[currentProfile] : {}
             };
             
             document.querySelectorAll('.field').forEach(field => {
@@ -900,9 +1271,39 @@
             
             const json = JSON.stringify(data, null, 2);
             
-            // Zeige Export Modal
-            document.getElementById('exportContent').textContent = json;
-            document.getElementById('exportModal').classList.add('show');
+            // Versuche direkten Download
+            if (downloadJSONFile(json, data.name)) {
+                alert('✅ JSON-Datei wurde heruntergeladen!');
+            } else {
+                // Fallback: Zeige Export Modal
+                document.getElementById('exportContent').textContent = json;
+                document.getElementById('exportModal').classList.add('show');
+            }
+        }
+        
+        // Direkte JSON-Datei Download-Funktion
+        function downloadJSONFile(jsonString, name) {
+            try {
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                const fileName = `${name || 'Beobachtung'}_${new Date().toISOString().split('T')[0]}.json`;
+                link.download = fileName;
+                
+                // Link temporär zum DOM hinzufügen und klicken
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // URL nach kurzer Zeit freigeben
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                return true;
+            } catch (error) {
+                console.error('Direkter Download fehlgeschlagen:', error);
+                return false;
+            }
         }
         
         function hideExportModal() {
@@ -943,13 +1344,15 @@
             document.body.removeChild(textarea);
         }
         
-        // Share API für iOS
+        // Verbesserter Share API für iOS und andere Plattformen
         function shareData() {
             const data = {
                 version: "5.0",
                 timestamp: new Date().toISOString(),
                 name: currentProfile || 'Beobachtung',
-                fields: {}
+                fields: {},
+                notes: currentProfile && competencyNotes[currentProfile] ? competencyNotes[currentProfile] : {},
+                tests: currentProfile && competencyTests[currentProfile] ? competencyTests[currentProfile] : {}
             };
             
             document.querySelectorAll('.field').forEach(field => {
@@ -961,22 +1364,45 @@
             
             const json = JSON.stringify(data, null, 2);
             
-            if (navigator.share) {
-                const file = new File([json], `${data.name}_${new Date().getFullYear()}.json`, {
-                    type: 'application/json'
-                });
+            // Moderne Web Share API nutzen wenn verfügbar
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const file = new File([json], `${data.name}_${new Date().toISOString().split('T')[0]}.json`, {
+                        type: 'application/json'
+                    });
+                    
+                    if (navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: `Beobachtungsbogen ${data.name}`,
+                            text: `Beobachtungsdaten für ${data.name}`,
+                            files: [file]
+                        }).catch(() => {
+                            fallbackShare(json, data.name);
+                        });
+                        return;
+                    }
+                } catch (error) {
+                    console.log('File sharing nicht unterstützt, verwende Text-Share');
+                }
                 
+                // Fallback: Text teilen
                 navigator.share({
                     title: `Beobachtungsbogen ${data.name}`,
-                    text: `Beobachtungsdaten für ${data.name}`,
-                    files: [file]
-                }).catch(err => {
-                    // Fallback: zeige Export Modal
-                    document.getElementById('exportContent').textContent = json;
-                    document.getElementById('exportModal').classList.add('show');
+                    text: json
+                }).catch(() => {
+                    fallbackShare(json, data.name);
                 });
             } else {
-                // Fallback: zeige Export Modal
+                fallbackShare(json, data.name);
+            }
+        }
+        
+        function fallbackShare(json, name) {
+            // Versuche erst direkten Download
+            if (downloadJSONFile(json, name)) {
+                alert('✅ JSON-Datei wurde heruntergeladen!');
+            } else {
+                // Als letztes Mittel: Export Modal anzeigen
                 document.getElementById('exportContent').textContent = json;
                 document.getElementById('exportModal').classList.add('show');
             }
@@ -1026,11 +1452,489 @@
             newWindow.document.close();
         }
         
+        // SVG Export der Schnecke (funktioniert auf allen Plattformen)
+        function exportSchneckeSVG() {
+            try {
+                // Wechsle zur Schnecken-Ansicht falls in Listen-Ansicht
+                const wasInListView = currentView === 'liste';
+                if (wasInListView) {
+                    setView('schnecke');
+                    setTimeout(() => {
+                        performSVGExport();
+                        if (wasInListView) {
+                            setTimeout(() => setView('liste'), 1000);
+                        }
+                    }, 500);
+                } else {
+                    performSVGExport();
+                }
+            } catch (error) {
+                console.error('SVG Export Fehler:', error);
+                alert('Fehler beim SVG-Export: ' + error.message);
+            }
+        }
+        
+        function performSVGExport() {
+            const svg = document.getElementById('svgContainer');
+            const name = currentProfile || document.getElementById('nameInput').value || 'Kind';
+            const date = new Date().toLocaleDateString('de-DE');
+            
+            // Klone das SVG Element für bessere Kontrolle
+            const svgClone = svg.cloneNode(true);
+            
+            // Setze explizite Dimensionen und Styles
+            svgClone.setAttribute('width', '700');
+            svgClone.setAttribute('height', '700');
+            svgClone.setAttribute('viewBox', '0 0 700 700');
+            
+            // Füge CSS-Styles direkt in das SVG ein für bessere Kompatibilität
+            const styleElement = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+            styleElement.textContent = `
+                .field { stroke-width: 2; fill: white; }
+                .field.full.spielen { fill: #10b981; }
+                .field.full.sprechen { fill: #ff6b35; }
+                .field.full.denken { fill: #3b82f6; }
+                .field.full.bewegung { fill: #ec4899; }
+                .field.full.lebenspraxis { fill: #8b5cf6; }
+                .field.full.soziales { fill: #ef4444; }
+                .field.yellow { fill: #FFC700; }
+                .field.lightyellow { fill: #06b6d4; }
+                .field-text { font-family: Arial, sans-serif; font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #333; }
+                .field.full .field-text { fill: white; }
+                .field.yellow .field-text { fill: #333; }
+                .field.lightyellow .field-text { fill: white; }
+                .sector-label { fill: #333; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; text-anchor: middle; }
+                .sector-background { fill-opacity: 0.08; }
+                .sector-border { fill: none; stroke-width: 2; stroke-opacity: 0.3; stroke-dasharray: 5, 5; }
+                .spielen-bg { fill: #10b981; }
+                .sprechen-bg { fill: #ff6b35; }
+                .denken-bg { fill: #3b82f6; }
+                .bewegung-bg { fill: #ec4899; }
+                .lebenspraxis-bg { fill: #8b5cf6; }
+                .soziales-bg { fill: #ef4444; }
+                .spielen { stroke: #10b981; }
+                .sprechen { stroke: #ff6b35; }
+                .denken { stroke: #3b82f6; }
+                .bewegung { stroke: #ec4899; }
+                .lebenspraxis { stroke: #8b5cf6; }
+                .soziales { stroke: #ef4444; }
+            `;
+            
+            // Füge Style-Element als erstes Kind hinzu
+            svgClone.insertBefore(styleElement, svgClone.firstChild);
+            
+            // Serialisiere das geklonte SVG
+            const svgData = new XMLSerializer().serializeToString(svgClone);
+            
+            // Erstelle hochwertiges, vollständiges SVG
+            const extendedSVG = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" style="background: white; font-family: Arial, sans-serif;">
+    <!-- Titel -->
+    <rect width="800" height="1000" fill="white"/>
+    <text x="400" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#333">Bildungsbereiche Beobachtungsbogen</text>
+    <text x="400" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#666">Kind: ${name} | Datum: ${date}</text>
+    
+    <!-- Schnecke zentriert -->
+    <g transform="translate(50, 120)">
+        ${svgData.replace(/<\?xml[^>]*>/, '').replace(/<svg[^>]*>/, '').replace('</svg>', '')}
+    </g>
+    
+    <!-- Verbesserte Legende -->
+    <g transform="translate(100, 850)">
+        <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">Legende:</text>
+        
+        <!-- Erste Reihe -->
+        <g transform="translate(0, 30)">
+            <circle cx="12" cy="0" r="10" fill="#10b981" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Spielen (1-38)</text>
+        </g>
+        
+        <g transform="translate(200, 30)">
+            <circle cx="12" cy="0" r="10" fill="#ff6b35" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Sprechen, Hören, Sehen (39-61)</text>
+        </g>
+        
+        <g transform="translate(480, 30)">
+            <circle cx="12" cy="0" r="10" fill="#3b82f6" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Denken (62-90)</text>
+        </g>
+        
+        <!-- Zweite Reihe -->
+        <g transform="translate(0, 60)">
+            <circle cx="12" cy="0" r="10" fill="#ec4899" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Bewegung (91-114)</text>
+        </g>
+        
+        <g transform="translate(200, 60)">
+            <circle cx="12" cy="0" r="10" fill="#8b5cf6" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Lebenspraxis (115-143)</text>
+        </g>
+        
+        <g transform="translate(480, 60)">
+            <circle cx="12" cy="0" r="10" fill="#ef4444" stroke="#333" stroke-width="1"/>
+            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Soziales/Emotionalität (144-169)</text>
+        </g>
+        
+        <!-- Status-Legende -->
+        <g transform="translate(0, 100)">
+            <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Status:</text>
+            
+            <circle cx="12" cy="25" r="10" fill="white" stroke="#333" stroke-width="2"/>
+            <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Nicht erfüllt</text>
+            
+            <g transform="translate(150, 0)">
+                <circle cx="12" cy="25" r="10" fill="white" stroke="#10b981" stroke-width="2"/>
+                <path d="M 7 25 A 5 5 0 0 0 17 25 Z" fill="#10b981"/>
+                <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Teilweise erfüllt</text>
+            </g>
+            
+            <g transform="translate(350, 0)">
+                <circle cx="12" cy="25" r="10" fill="#10b981" stroke="#10b981" stroke-width="2"/>
+                <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Voll erfüllt</text>
+            </g>
+        </g>
+    </g>
+</svg>`;
+            
+            // Download erstellen
+            const blob = new Blob([extendedSVG], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Schnecke_${name}_${date.replace(/\./g, '-')}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Verbesserte SVG-Datei wurde heruntergeladen!\n\n🎨 Hochauflösende Darstellung\n📄 Druckoptimiert für A4\n🖼️ Kann als PDF gespeichert werden');
+        }
+        
+        // Druckfunktion für die Schnecke
+        function printSchnecke() {
+            const wasInListView = currentView === 'liste';
+            if (wasInListView) {
+                setView('schnecke');
+            }
+            
+            setTimeout(() => {
+                const name = currentProfile || document.getElementById('nameInput').value || 'Kind';
+                const date = new Date().toLocaleDateString('de-DE');
+                
+                // Erstelle Druckversion
+                const printWindow = window.open('', '_blank');
+                const svg = document.getElementById('svgContainer');
+                const svgData = new XMLSerializer().serializeToString(svg);
+                
+                printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Schnecke - ${name}</title>
+                    <style>
+                        @media print {
+                            @page { size: A4; margin: 1cm; }
+                            body { margin: 0; font-family: Arial, sans-serif; }
+                        }
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .svg-container { text-align: center; margin: 20px 0; }
+                        .legend { margin-top: 20px; }
+                        .legend-item { display: inline-block; margin: 5px 15px 5px 0; }
+                        .legend-dot { width: 15px; height: 15px; border-radius: 50%; display: inline-block; margin-right: 5px; vertical-align: middle; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Bildungsbereiche Beobachtungsbogen</h1>
+                        <p>Kind: <strong>${name}</strong> | Datum: <strong>${date}</strong></p>
+                    </div>
+                    
+                    <div class="svg-container">
+                        ${svgData}
+                    </div>
+                    
+                    <div class="legend">
+                        <h3>Legende:</h3>
+                        <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span>Spielen (1-38)</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #ff6b35;"></span>Sprechen, Hören, Sehen (39-61)</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #059669;"></span>Denken (62-90)</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #ec4899;"></span>Bewegung (91-114)</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #06b6d4;"></span>Lebenspraxis (115-143)</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #ef4444;"></span>Soziales/Emotionalität (144-169)</div>
+                    </div>
+                    
+                    <scr' + 'ipt>
+                        window.onload = function() {
+                            setTimeout(() => {
+                                window.print();
+                                window.close();
+                            }, 500);
+                        };
+                    </scr' + 'ipt>
+                </body>
+                </html>
+                `);
+                
+                printWindow.document.close();
+                
+                if (wasInListView) {
+                    setTimeout(() => setView('liste'), 2000);
+                }
+            }, 500);
+        }
+        
+        // Export-Funktion für Test-Kompetenzen
+        function exportTestCompetencies() {
+            const name = currentProfile || 'Kind';
+            const date = new Date().toLocaleDateString('de-DE');
+            
+            // Sammle alle Test-Kompetenzen
+            const testCompetencies = [];
+            
+            if (currentProfile && competencyTests[currentProfile]) {
+                for (let i = 1; i <= 169; i++) {
+                    if (competencyTests[currentProfile][i] === true) {
+                        const category = getCategoryForNumber(i);
+                        const categoryName = getCategoryName(category);
+                        const note = (competencyNotes[currentProfile] && competencyNotes[currentProfile][i]) || '';
+                        
+                        testCompetencies.push({
+                            number: i,
+                            text: kompetenzen[i],
+                            category: categoryName,
+                            note: note
+                        });
+                    }
+                }
+            }
+            
+            if (testCompetencies.length === 0) {
+                alert('⚠️ Keine Test-Kompetenzen gefunden! Bitte markieren Sie zuerst Kompetenzen zum Testen in der Listen-Ansicht.');
+                return;
+            }
+            
+            // Erstelle druckfreundliche HTML-Seite
+            const printWindow = window.open('', '_blank');
+            
+            let html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Test-Kompetenzen - ${name}</title>
+                <style>
+                    @media print {
+                        @page { size: A4; margin: 2cm; }
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.5;
+                        color: #333;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        text-align: center;
+                        border-bottom: 2px solid #667eea;
+                        padding-bottom: 20px;
+                        margin-bottom: 30px;
+                    }
+                    .header h1 {
+                        color: #667eea;
+                        margin-bottom: 10px;
+                    }
+                    .info {
+                        background: #f8fafc;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-bottom: 30px;
+                        border-left: 4px solid #667eea;
+                    }
+                    .competency {
+                        border: 1px solid #e2e8f0;
+                        border-radius: 4px;
+                        padding: 4px 6px;
+                        margin-bottom: 2px;
+                        background: white;
+                        page-break-inside: avoid;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        min-height: 28px;
+                    }
+                    .competency-number {
+                        background: #667eea;
+                        color: white;
+                        width: 18px;
+                        height: 18px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        font-size: 9px;
+                        flex-shrink: 0;
+                    }
+                    .competency-text {
+                        font-size: 10px;
+                        line-height: 1.2;
+                        flex: 1;
+                        margin-right: 8px;
+                    }
+                    .competency-controls {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        flex-shrink: 0;
+                    }
+                    .test-checkboxes {
+                        display: flex;
+                        gap: 2px;
+                        font-size: 8px;
+                        white-space: nowrap;
+                    }
+                    .test-checkboxes input[type="radio"] {
+                        margin: 0 1px 0 0;
+                        transform: scale(0.7);
+                    }
+                    .notes-inline {
+                        font-size: 8px;
+                        color: #666;
+                        font-style: italic;
+                        margin-left: 4px;
+                    }
+                    .notes-section {
+                        background: #fef3c7;
+                        padding: 10px;
+                        border-radius: 6px;
+                        border: 1px solid #fbbf24;
+                    }
+                    .notes-label {
+                        font-weight: bold;
+                        color: #92400e;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .notes-content {
+                        margin-top: 5px;
+                        font-style: italic;
+                        color: #451a03;
+                    }
+                    .test-result {
+                        margin-top: 15px;
+                        padding: 10px;
+                        border: 2px dashed #cbd5e1;
+                        border-radius: 6px;
+                        background: #f8fafc;
+                    }
+                    .test-result-label {
+                        font-weight: bold;
+                        color: #475569;
+                        font-size: 14px;
+                        margin-bottom: 5px;
+                    }
+                    .category-spielen { border-left-color: #10b981; }
+                    .category-sprechen { border-left-color: #ff6b35; }
+                    .category-denken { border-left-color: #3b82f6; }
+                    .category-bewegung { border-left-color: #ec4899; }
+                    .category-lebenspraxis { border-left-color: #8b5cf6; }
+                    .category-soziales { border-left-color: #ef4444; }
+                    .print-btn {
+                        background: #667eea;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        margin: 20px 0;
+                    }
+                    .summary {
+                        background: #e0f2fe;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        margin-bottom: 8px;
+                        border-left: 2px solid #0284c7;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>📝 Test-Kompetenzen Checkliste</h1>
+                    <p><strong>Kind:</strong> ${name} | <strong>Datum:</strong> ${date}</p>
+                </div>
+                
+                <div class="summary">
+                    <p><strong>${testCompetencies.length} Test-Kompetenzen</strong> - E=Erfüllt, T=Teilweise, N=Nicht erfüllt</p>
+                </div>
+                
+                <div class="info">
+                    📝 Automatisch generierte Test-Liste aus der Schnecke-App
+                </div>
+                
+                <button class="print-btn no-print" onclick="window.print()">🖼️ Drucken</button>
+                
+                <div class="competencies">`;
+                
+            // Kompakte Darstellung ohne Gruppierung für maximale Platzersparnis
+            testCompetencies.forEach(comp => {
+                const categoryClass = getCategoryForNumber(comp.number);
+                html += `
+                <div class="competency category-${categoryClass}">
+                    <div class="competency-number">${comp.number}</div>
+                    <div class="competency-text">${comp.text}${comp.note ? ` <span class="notes-inline">(${comp.note})</span>` : ''}</div>
+                    <div class="competency-controls">
+                        <div class="test-checkboxes">
+                            <label><input type="radio" name="test-${comp.number}">E</label>
+                            <label><input type="radio" name="test-${comp.number}">T</label>
+                            <label><input type="radio" name="test-${comp.number}">N</label>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            html += `
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #e2e8f0; text-align: center; color: #6b7280; font-size: 10px;">
+                    Schnecke-App | ${date} | ${name}
+                </div>
+            </body>
+            </html>`;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
+            alert(`✅ Test-Liste für ${name} wurde erstellt!\n\n📁 ${testCompetencies.length} Kompetenzen zum Testen\n🖼️ Bereit zum Drucken oder Speichern`);
+        }
+        
+        // Hilfsfunktion für Kategorie-Namen
+        function getCategoryName(category) {
+            const names = {
+                'spielen': 'Spielen',
+                'sprechen': 'Sprechen, Hören, Sehen',
+                'denken': 'Denken',
+                'bewegung': 'Bewegung',
+                'lebenspraxis': 'Lebenspraxis',
+                'soziales': 'Soziales/Emotionalität'
+            };
+            return names[category] || category;
+        }
+        
         // Profile Management
         function loadProfiles() {
-            const saved = localStorage.getItem('schneckeProfiles');
-            if (saved) {
-                profiles = JSON.parse(saved);
+            try {
+                const saved = localStorage.getItem('schneckeProfiles');
+                if (saved) {
+                    profiles = JSON.parse(saved);
+                }
+            } catch (error) {
+                console.warn('LocalStorage nicht verfügbar oder beschädigt:', error);
+                profiles = {};
             }
             updateProfileSelect();
         }
@@ -1107,6 +2011,12 @@
                     }
                 });
             }
+            
+            // Lade Notizen und Tests für alle Ansichten
+            loadNotesAndTests(profileName);
+            if (currentView === 'liste') {
+                updateListViewCircles();
+            }
         }
         
         function saveCurrentProfile() {
@@ -1130,7 +2040,12 @@
         }
         
         function saveProfiles() {
-            localStorage.setItem('schneckeProfiles', JSON.stringify(profiles));
+            try {
+                localStorage.setItem('schneckeProfiles', JSON.stringify(profiles));
+            } catch (error) {
+                console.warn('Speichern in LocalStorage fehlgeschlagen:', error);
+                alert('⚠️ Warnung: Daten konnten nicht gespeichert werden. Bitte prüfen Sie Ihre Browser-Einstellungen.');
+            }
         }
         
         function deleteCurrentProfile() {
@@ -1159,7 +2074,7 @@
         
         function setFieldState(field, normalHalf, yellowHalf, text, state) {
             field.setAttribute("data-state", state);
-            field.classList.remove('full', 'yellow');
+            field.classList.remove('full', 'yellow', 'lightyellow');
             
             if (state === "0") {
                 field.style.fill = 'white';
@@ -1189,6 +2104,41 @@
                 if (text) text.style.fill = '#333';
             } else if (state === "5") {
                 field.classList.add('yellow');
+                field.style.fill = '';
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            } else if (state === "6") {
+                field.style.fill = 'white';
+                if (normalHalf) {
+                    normalHalf.style.display = 'none';
+                    // Erstelle türkise Hälfte
+                    const lightYellowHalf = normalHalf.cloneNode();
+                    lightYellowHalf.setAttribute('fill', '#06b6d4');
+                    lightYellowHalf.style.display = 'block';
+                    if (!normalHalf.nextSibling || normalHalf.nextSibling.getAttribute('fill') !== '#06b6d4') {
+                        normalHalf.parentNode.insertBefore(lightYellowHalf, normalHalf.nextSibling);
+                    }
+                }
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            } else if (state === "7") {
+                field.style.fill = 'white';
+                if (normalHalf) normalHalf.style.display = 'block';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                // Erstelle türkise Hälfte
+                if (normalHalf) {
+                    const lightYellowHalf = normalHalf.cloneNode();
+                    lightYellowHalf.setAttribute('fill', '#06b6d4');
+                    lightYellowHalf.setAttribute('d', `M ${normalHalf.parentElement.querySelector('circle').getAttribute('cx') - 10} ${normalHalf.parentElement.querySelector('circle').getAttribute('cy')} A 10 10 0 0 1 ${normalHalf.parentElement.querySelector('circle').getAttribute('cx') + 10} ${normalHalf.parentElement.querySelector('circle').getAttribute('cy')} Z`);
+                    lightYellowHalf.style.display = 'block';
+                    if (!normalHalf.nextSibling || normalHalf.nextSibling.getAttribute('fill') !== '#06b6d4') {
+                        normalHalf.parentNode.insertBefore(lightYellowHalf, normalHalf.nextSibling);
+                    }
+                }
+                if (text) text.style.fill = '#333';
+            } else if (state === "8") {
+                field.classList.add('lightyellow');
                 field.style.fill = '';
                 if (normalHalf) normalHalf.style.display = 'none';
                 if (yellowHalf) yellowHalf.style.display = 'none';
@@ -1409,21 +2359,67 @@
                 else if (currentState === "3") newState = "4";
                 else if (currentState === "4") newState = "2";
                 else if (currentState === "5") newState = "0";
+                else if (currentState === "6") newState = "7";
+                else if (currentState === "7") newState = "2";
+                else if (currentState === "8") newState = "0";
                 else newState = "0";
-            } else {
+            } else if (currentMode === 'yellow') {
                 if (currentState === "0") newState = "3";
                 else if (currentState === "1") newState = "4";
                 else if (currentState === "2") newState = "4";
                 else if (currentState === "3") newState = "5";
                 else if (currentState === "4") newState = "5";
                 else if (currentState === "5") newState = "0";
+                else if (currentState === "6") newState = "4";
+                else if (currentState === "7") newState = "4";
+                else if (currentState === "8") newState = "5";
                 else newState = "3";
+            } else if (currentMode === 'lightyellow') {
+                if (currentState === "0") newState = "6";
+                else if (currentState === "1") newState = "7";
+                else if (currentState === "2") newState = "7";
+                else if (currentState === "3") newState = "4"; // Gelb + Hellgelb Kombination
+                else if (currentState === "4") newState = "5"; // Zu vollem Gelb
+                else if (currentState === "5") newState = "8"; // Zu vollem Hellgelb
+                else if (currentState === "6") newState = "8";
+                else if (currentState === "7") newState = "8";
+                else if (currentState === "8") newState = "0";
+                else newState = "6";
             }
             
             setFieldState(field, halfCircle, yellowHalfCircle, textElement, newState);
             fieldStates[field.getAttribute("data-number")] = newState;
             
+            // Aktualisiere auch die Listen-Ansicht
+            if (currentView === 'liste') {
+                updateCompetencyCircle(field.getAttribute("data-number"));
+            }
+            
             saveCurrentProfile();
+        }
+        
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (view === 'schnecke') {
+                document.querySelector('.view-btn.schnecke').classList.add('active');
+                document.getElementById('wheelContainer').style.display = 'block';
+                document.getElementById('listContainer').style.display = 'none';
+                document.getElementById('testControls').style.display = 'none';
+                // Sticky header deaktivieren in Schnecken-Ansicht
+                document.getElementById('stickyHeader').classList.remove('list-active');
+            } else {
+                document.querySelector('.view-btn.liste').classList.add('active');
+                document.getElementById('wheelContainer').style.display = 'none';
+                document.getElementById('listContainer').style.display = 'block';
+                document.getElementById('testControls').style.display = 'flex';
+                initializeListView();
+                // Sticky header aktivieren in Listen-Ansicht
+                document.getElementById('stickyHeader').classList.add('list-active');
+            }
         }
         
         function setMode(mode) {
@@ -1433,8 +2429,15 @@
             });
             if (mode === 'normal') {
                 document.querySelector('.mode-btn.normal').classList.add('active');
-            } else {
+            } else if (mode === 'yellow') {
                 document.querySelector('.mode-btn.yellow-mode').classList.add('active');
+            } else if (mode === 'lightyellow') {
+                document.querySelector('.mode-btn.light-yellow-mode').classList.add('active');
+            }
+            
+            // Wenn wir in der Listen-Ansicht sind, diese aktualisieren
+            if (currentView === 'liste') {
+                updateListViewCircles();
             }
         }
         
@@ -1493,7 +2496,7 @@
         function resetAllWithoutConfirm() {
             document.querySelectorAll('.field').forEach(field => {
                 field.setAttribute("data-state", "0");
-                field.classList.remove('full', 'yellow');
+                field.classList.remove('full', 'yellow', 'lightyellow');
                 field.style.fill = 'white';
             });
             document.querySelectorAll('path[fill]').forEach(halfCircle => {
@@ -1507,6 +2510,18 @@
                 text.style.fill = '#333';
             });
             Object.keys(fieldStates).forEach(key => delete fieldStates[key]);
+            
+            // Auch Listen-Ansicht zurücksetzen
+            if (currentView === 'liste') {
+                updateListViewCircles();
+                // Notizen und Tests zurücksetzen
+                for (let i = 1; i <= 169; i++) {
+                    const notesInput = document.getElementById(`notes-${i}`);
+                    const testCheckbox = document.getElementById(`test-${i}`);
+                    if (notesInput) notesInput.value = '';
+                    if (testCheckbox) testCheckbox.checked = false;
+                }
+            }
         }
         
         function importData(event) {
@@ -1552,9 +2567,834 @@
         }
         
         // App initialisieren
+        // Listen-Ansicht Funktionen
+        function initializeListView() {
+            const container = document.getElementById('competencySections');
+            if (container.children.length > 0) {
+                updateListViewCircles();
+                return; // Schon initialisiert
+            }
+            
+            const categories = [
+                { name: 'spielen', label: 'Spielen', start: 1, end: 38 },
+                { name: 'sprechen', label: 'Sprechen, Hören, Sehen', start: 39, end: 61 },
+                { name: 'denken', label: 'Denken', start: 62, end: 90 },
+                { name: 'bewegung', label: 'Bewegung', start: 91, end: 114 },
+                { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143 },
+                { name: 'soziales', label: 'Soziales/Emotionalität', start: 144, end: 169 }
+            ];
+            
+            categories.forEach(cat => {
+                const section = document.createElement('div');
+                section.className = 'competency-section';
+                
+                const header = document.createElement('div');
+                header.className = `section-header ${cat.name}`;
+                header.innerHTML = `<span>${cat.label} (${cat.start}-${cat.end})</span>`;
+                section.appendChild(header);
+                
+                const itemList = document.createElement('div');
+                itemList.className = 'competency-item-list';
+                
+                for (let i = cat.start; i <= cat.end; i++) {
+                    const item = createCompetencyItem(i, kompetenzen[i], cat.name);
+                    itemList.appendChild(item);
+                }
+                
+                section.appendChild(itemList);
+                container.appendChild(section);
+            });
+            
+            updateListViewCircles();
+            
+            // Load notes and tests for current profile when initializing list view
+            if (currentProfile) {
+                loadNotesAndTests(currentProfile);
+            }
+        }
+        
+        function createCompetencyItem(number, text, category) {
+            const item = document.createElement('div');
+            item.className = 'competency-item-row';
+            item.setAttribute('data-number', number);
+            
+            item.innerHTML = `
+                <div class="competency-number">${number}.</div>
+                <div class="competency-text">${text}</div>
+                <div class="competency-controls">
+                    <div class="competency-row-top">
+                        <div class="competency-circle" id="circle-${number}"></div>
+                        <div class="competency-buttons">
+                            <button class="comp-btn half" onclick="setCompetencyState(${number}, 'half')">Halb</button>
+                            <button class="comp-btn full" onclick="setCompetencyState(${number}, 'full')">Ganz</button>
+                            <button class="comp-btn reset" onclick="setCompetencyState(${number}, 'reset')">Zurück</button>
+                        </div>
+                    </div>
+                    <div class="competency-row-bottom">
+                        <div class="test-checkbox">
+                            <input type="checkbox" id="test-${number}" onchange="saveCompetencyTest(${number}, this.checked)">
+                            <label for="test-${number}">Testen</label>
+                        </div>
+                        <input type="text" class="notes-input" id="notes-${number}" placeholder="Notizen..." onblur="saveCompetencyNote(${number}, this.value)">
+                    </div>
+                </div>
+            `;
+            
+            return item;
+        }
+        
+        function setCompetencyState(number, action) {
+            const field = document.querySelector(`.field[data-number="${number}"]`);
+            if (!field) return;
+            
+            const parent = field.parentElement;
+            const halfCircles = parent.querySelectorAll('path[fill]');
+            const normalHalf = halfCircles[0];
+            const yellowHalf = halfCircles[1];
+            const text = parent.querySelector('.field-text');
+            
+            const currentState = field.getAttribute("data-state") || "0";
+            let newState = currentState;
+            
+            if (action === 'reset') {
+                newState = "0";
+            } else if (action === 'half') {
+                if (currentMode === 'normal') {
+                    newState = "1";
+                } else if (currentMode === 'yellow') {
+                    if (currentState === "0" || currentState === "3") newState = "3";
+                    else if (currentState === "1") newState = "4";
+                    else if (currentState === "2") newState = "4";
+                } else if (currentMode === 'lightyellow') {
+                    if (currentState === "0" || currentState === "6") newState = "6";
+                    else if (currentState === "1") newState = "7";
+                    else if (currentState === "2") newState = "7";
+                    else if (currentState === "3") newState = "4"; // Gelb + Hellgelb
+                }
+            } else if (action === 'full') {
+                // Neue Logik für "Ganz" Button
+                if (currentMode === 'normal') {
+                    newState = "2"; // Ganz in Bildungsbereich-Farbe
+                } else if (currentMode === 'yellow') {
+                    // Wenn bereits halb gefüllt, zweite Hälfte mit Gelb füllen
+                    if (currentState === "1") {
+                        newState = "4"; // Halb Bildungsbereich-Farbe + halb gelb
+                    } else {
+                        newState = "5"; // Ganz gelb
+                    }
+                } else if (currentMode === 'lightyellow') {
+                    // Wenn bereits halb gefüllt, zweite Hälfte mit Hellgelb füllen
+                    if (currentState === "1") {
+                        newState = "7"; // Halb Bildungsbereich-Farbe + halb hellgelb
+                    } else if (currentState === "3") {
+                        newState = "4"; // Gelb + Hellgelb Kombination
+                    } else {
+                        newState = "8"; // Ganz türkis
+                    }
+                }
+            }
+            
+            setFieldState(field, normalHalf, yellowHalf, text, newState);
+            fieldStates[number] = newState;
+            
+            // Aktualisiere den Kreis in der Listen-Ansicht
+            updateCompetencyCircle(number);
+            
+            saveCurrentProfile();
+        }
+        
+        // Bildungsbereich-Farben definieren
+        const categoryColors = {
+            'spielen': '#10b981',        // Grün
+            'sprechen': '#ff6b35',       // Orange (dunkel)
+            'denken': '#3b82f6',         // Blau
+            'bewegung': '#ec4899',       // Pink
+            'lebenspraxis': '#8b5cf6',   // Lila/Violett
+            'soziales': '#ef4444'        // Rot
+        };
+        
+        function getCategoryForNumber(number) {
+            if (number >= 1 && number <= 38) return 'spielen';
+            if (number >= 39 && number <= 61) return 'sprechen';
+            if (number >= 62 && number <= 90) return 'denken';
+            if (number >= 91 && number <= 114) return 'bewegung';
+            if (number >= 115 && number <= 143) return 'lebenspraxis';
+            if (number >= 144 && number <= 169) return 'soziales';
+            return 'spielen';
+        }
+        
+        function updateCompetencyCircle(number) {
+            const circle = document.getElementById(`circle-${number}`);
+            if (!circle) return;
+            
+            const field = document.querySelector(`.field[data-number="${number}"]`);
+            const state = field ? field.getAttribute("data-state") : "0";
+            const category = getCategoryForNumber(number);
+            const categoryColor = categoryColors[category];
+            
+            // Kreis zurücksetzen
+            circle.style.background = 'white';
+            circle.style.border = '2px solid #ddd';
+            circle.innerHTML = '';
+            
+            if (state === "0") {
+                // Leer - Standard
+            } else if (state === "1") {
+                // Halb normal (Bildungsbereich-Farbe)
+                circle.style.background = `linear-gradient(to right, ${categoryColor} 50%, white 50%)`;
+            } else if (state === "2") {
+                // Ganz normal (Bildungsbereich-Farbe)
+                circle.style.background = categoryColor;
+                circle.style.border = `2px solid ${categoryColor}`;
+            } else if (state === "3") {
+                // Halb gelb
+                circle.style.background = `linear-gradient(to right, #FFC700 50%, white 50%)`;
+            } else if (state === "4") {
+                // Halb Bildungsbereich-Farbe + halb gelb
+                circle.style.background = `linear-gradient(to right, ${categoryColor} 50%, #FFC700 50%)`;
+            } else if (state === "5") {
+                // Ganz gelb
+                circle.style.background = '#FFC700';
+                circle.style.border = '2px solid #FFC700';
+            } else if (state === "6") {
+                // Halb türkis
+                circle.style.background = `linear-gradient(to right, #06b6d4 50%, white 50%)`;
+            } else if (state === "7") {
+                // Halb Bildungsbereich-Farbe + halb türkis
+                circle.style.background = `linear-gradient(to right, ${categoryColor} 50%, #06b6d4 50%)`;
+            } else if (state === "8") {
+                // Ganz türkis
+                circle.style.background = '#06b6d4';
+                circle.style.border = '2px solid #06b6d4';
+            }
+        }
+        
+        function updateListViewCircles() {
+            for (let i = 1; i <= 169; i++) {
+                updateCompetencyCircle(i);
+            }
+        }
+        
+        function saveCompetencyNote(number, note) {
+            if (!currentProfile) return;
+            
+            try {
+                if (!competencyNotes[currentProfile]) {
+                    competencyNotes[currentProfile] = {};
+                }
+                
+                competencyNotes[currentProfile][number] = note;
+                localStorage.setItem('schneckeNotes', JSON.stringify(competencyNotes));
+            } catch (error) {
+                console.warn('Notiz konnte nicht gespeichert werden:', error);
+            }
+        }
+        
+        function saveCompetencyTest(number, shouldTest) {
+            console.log('saveCompetencyTest called:', number, shouldTest, 'currentProfile:', currentProfile);
+            if (!currentProfile) {
+                console.warn('No current profile selected');
+                return;
+            }
+            
+            try {
+                if (!competencyTests[currentProfile]) {
+                    competencyTests[currentProfile] = {};
+                }
+                
+                competencyTests[currentProfile][number] = shouldTest;
+                localStorage.setItem('schneckeTests', JSON.stringify(competencyTests));
+                console.log('Test saved successfully for competency', number);
+            } catch (error) {
+                console.warn('Test-Markierung konnte nicht gespeichert werden:', error);
+            }
+        }
+        
+        function loadProfileNotes() {
+            try {
+                const saved = localStorage.getItem('schneckeNotes');
+                if (saved) {
+                    competencyNotes = JSON.parse(saved);
+                }
+                
+                const savedTests = localStorage.getItem('schneckeTests');
+                if (savedTests) {
+                    competencyTests = JSON.parse(savedTests);
+                }
+            } catch (error) {
+                console.warn('Notizen/Tests konnten nicht geladen werden:', error);
+                competencyNotes = {};
+                competencyTests = {};
+            }
+        }
+        
+        function loadNotesAndTests(profileName) {
+            console.log('loadNotesAndTests called for profile:', profileName);
+            if (!profileName) return;
+            
+            // Lade Notizen
+            if (competencyNotes[profileName]) {
+                Object.keys(competencyNotes[profileName]).forEach(number => {
+                    const notesInput = document.getElementById(`notes-${number}`);
+                    if (notesInput) {
+                        notesInput.value = competencyNotes[profileName][number];
+                    }
+                });
+            }
+            
+            // Lade Test-Markierungen
+            if (competencyTests[profileName]) {
+                console.log('Loading tests for profile:', profileName, competencyTests[profileName]);
+                Object.keys(competencyTests[profileName]).forEach(number => {
+                    const testCheckbox = document.getElementById(`test-${number}`);
+                    if (testCheckbox) {
+                        testCheckbox.checked = competencyTests[profileName][number] === true;
+                        console.log('Loaded test checkbox', number, 'checked:', testCheckbox.checked);
+                    } else {
+                        console.warn('Test checkbox not found for number:', number);
+                    }
+                });
+            } else {
+                console.log('No tests found for profile:', profileName);
+            }
+        }
+        
+        // Alle Test-Häkchen entfernen
+        function clearAllTests() {
+            if (!currentProfile) {
+                alert('Bitte wählen Sie zuerst ein Profil aus.');
+                return;
+            }
+            
+            if (confirm('🗴️ Möchten Sie wirklich alle Test-Häkchen entfernen?')) {
+                // Entferne aus dem Speicher
+                if (competencyTests[currentProfile]) {
+                    competencyTests[currentProfile] = {};
+                    try {
+                        localStorage.setItem('schneckeTests', JSON.stringify(competencyTests));
+                    } catch (error) {
+                        console.warn('Test-Daten konnten nicht gespeichert werden:', error);
+                    }
+                }
+                
+                // Entferne aus der UI
+                for (let i = 1; i <= 169; i++) {
+                    const testCheckbox = document.getElementById(`test-${i}`);
+                    if (testCheckbox) {
+                        testCheckbox.checked = false;
+                    }
+                }
+                
+                alert('✅ Alle Test-Häkchen wurden entfernt!');
+            }
+        }
+        
+        // PDF.js Worker konfigurieren
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // PDF-Import Funktionen
+        async function importPDFSchnecke(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!currentProfile) {
+                alert('Bitte wählen Sie zuerst ein Profil aus oder erstellen Sie ein neues.');
+                event.target.value = '';
+                return;
+            }
+            
+            try {
+                showLoadingIndicator('PDF wird analysiert...');
+                
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                
+                // Analysiere erste Seite (normalerweise ist die Schnecke auf Seite 1)
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({scale: 2.0});
+                
+                // Canvas für PDF-Rendering erstellen
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                // PDF auf Canvas rendern
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+                
+                // Farbanalyse durchführen
+                const detectedStates = analyzePDFColors(canvas, context);
+                
+                // Erkannte Zustände anwenden
+                applyDetectedStates(detectedStates);
+                
+                hideLoadingIndicator();
+                
+                const importCount = Object.keys(detectedStates).length;
+                alert(`✅ PDF erfolgreich importiert!\n${importCount} Kompetenzen wurden erkannt und übertragen.`);
+                
+            } catch (error) {
+                hideLoadingIndicator();
+                console.error('PDF-Import Fehler:', error);
+                alert('❌ Fehler beim PDF-Import: ' + error.message);
+            }
+            
+            event.target.value = '';
+        }
+        
+        function analyzePDFColors(canvas, context) {
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const detectedStates = {};
+            
+            // Verbesserte Koordinaten-Erkennung
+            const competencyPositions = generateImprovedCompetencyPositions(canvas.width, canvas.height);
+            
+            // Debug: Canvas zur Kontrolle anzeigen (optional)
+            if (window.location.hash === '#debug') {
+                showDebugCanvas(canvas, competencyPositions);
+            }
+            
+            competencyPositions.forEach(pos => {
+                const number = pos.number;
+                const x = Math.round(pos.x);
+                const y = Math.round(pos.y);
+                const segment = pos.segment;
+                
+                // Größeren Bereich um die Position analysieren
+                const colorAnalysis = analyzeCompetencyColors(data, x, y, canvas.width, canvas.height);
+                
+                // Erweiterte Farbanalyse für alle Zustände mit Segment-Info
+                const state = determineCompetencyState(colorAnalysis, segment);
+                
+                if (state !== '0') {
+                    detectedStates[number] = state;
+                    console.log(`Kompetenz ${number} (${segment}): State ${state}`, colorAnalysis);
+                }
+            });
+            
+            return detectedStates;
+        }
+        
+        function generateImprovedCompetencyPositions(width, height) {
+            const positions = [];
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const baseRadius = Math.min(width, height) * 0.15; // Basis-Radius
+            
+            // Definiere Ring-Layout basierend auf dem echten Schnecken-Design
+            const rings = [
+                // Ring 1 (innerster Ring) - um das Zentrum
+                { numbers: [1, 2, 3, 4, 5, 39, 62, 91, 115, 144], radius: baseRadius },
+                // Ring 2 
+                { numbers: [6, 7, 8, 9, 10, 11, 12, 13, 40, 41, 42, 43, 63, 64, 65, 66, 67, 92, 93, 94, 95, 116, 117, 118, 119, 145, 146, 147, 148], radius: baseRadius * 1.6 },
+                // Ring 3
+                { numbers: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 44, 45, 46, 47, 48, 49, 50, 68, 69, 70, 71, 72, 73, 74, 96, 97, 98, 99, 100, 120, 121, 122, 123, 124, 149, 150, 151, 152, 153], radius: baseRadius * 2.2 },
+                // Ring 4
+                { numbers: [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 51, 52, 53, 54, 55, 56, 57, 58, 75, 76, 77, 78, 79, 80, 81, 101, 102, 103, 104, 105, 125, 126, 127, 128, 129, 154, 155, 156, 157, 158], radius: baseRadius * 2.8 },
+                // Ring 5 (äußerster Ring)
+                { numbers: [34, 35, 36, 37, 38, 59, 60, 61, 82, 83, 84, 85, 86, 87, 88, 89, 90, 106, 107, 108, 109, 110, 111, 112, 113, 114, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169], radius: baseRadius * 3.4 }
+            ];
+            
+            // Definiere Segmente für Farberkennung
+            const segments = {
+                spielen: { start: 1, end: 38, baseAngle: 30 },        // Grün - rechts oben
+                sprechen: { start: 39, end: 61, baseAngle: 90 },      // Orange - rechts
+                denken: { start: 62, end: 90, baseAngle: 180 },       // Dunkelgrün - unten  
+                bewegung: { start: 91, end: 114, baseAngle: 240 },    // Pink - links unten
+                lebenspraxis: { start: 115, end: 143, baseAngle: 300 }, // Hellblau - links
+                soziales: { start: 144, end: 169, baseAngle: 0 }      // Rot - oben
+            };
+            
+            rings.forEach(ring => {
+                const numbersInRing = ring.numbers;
+                const angleStep = 360 / numbersInRing.length;
+                
+                numbersInRing.forEach((number, index) => {
+                    // Bestimme Segment für diese Nummer
+                    let segment = 'unknown';
+                    for (const [segName, segData] of Object.entries(segments)) {
+                        if (number >= segData.start && number <= segData.end) {
+                            segment = segName;
+                            break;
+                        }
+                    }
+                    
+                    // Berechne Position basierend auf Ring und Index
+                    const angle = (index * angleStep - 90) * Math.PI / 180; // -90° um bei 12 Uhr zu starten
+                    const radius = ring.radius;
+                    
+                    // Kleine Zufallsvariation um natürlicheres Layout zu erzeugen
+                    const radiusVariation = (Math.random() - 0.5) * baseRadius * 0.1;
+                    const angleVariation = (Math.random() - 0.5) * 0.1;
+                    
+                    const x = centerX + (radius + radiusVariation) * Math.cos(angle + angleVariation);
+                    const y = centerY + (radius + radiusVariation) * Math.sin(angle + angleVariation);
+                    
+                    positions.push({ number, x, y, segment });
+                });
+            });
+            
+            return positions.sort((a, b) => a.number - b.number);
+        }
+        
+        function analyzeCompetencyColors(data, x, y, width, height) {
+            const colors = [];
+            const radius = 12; // Größerer Radius für bessere Erkennung
+            
+            // Kreisförmige Abtastung um den Mittelpunkt
+            for (let dx = -radius; dx <= radius; dx++) {
+                for (let dy = -radius; dy <= radius; dy++) {
+                    if (dx*dx + dy*dy <= radius*radius) { // Nur innerhalb des Kreises
+                        const px = x + dx;
+                        const py = y + dy;
+                        
+                        if (px >= 0 && px < width && py >= 0 && py < height) {
+                            const index = (py * width + px) * 4;
+                            colors.push({
+                                r: data[index],
+                                g: data[index + 1],
+                                b: data[index + 2],
+                                a: data[index + 3]
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Farbkategorien zählen
+            const colorCounts = {
+                green: 0,
+                yellow: 0,
+                red: 0,
+                blue: 0,
+                purple: 0,
+                orange: 0,
+                white: 0,
+                mixed: 0
+            };
+            
+            colors.forEach(color => {
+                if (isWhiteColor(color)) {
+                    colorCounts.white++;
+                } else if (isGreenColor(color)) {
+                    colorCounts.green++;
+                } else if (isYellowColor(color)) {
+                    colorCounts.yellow++;
+                } else if (isRedColor(color)) {
+                    colorCounts.red++;
+                } else if (isBlueColor(color)) {
+                    colorCounts.blue++;
+                } else if (isPurpleColor(color)) {
+                    colorCounts.purple++;
+                } else if (isOrangeColor(color)) {
+                    colorCounts.orange++;
+                } else {
+                    colorCounts.mixed++;
+                }
+            });
+            
+            return {
+                total: colors.length,
+                counts: colorCounts,
+                dominantColors: getDominantColors(colorCounts)
+            };
+        }
+        
+        function getDominantColors(colorCounts) {
+            const sorted = Object.entries(colorCounts)
+                .filter(([color, count]) => color !== 'white' && count > 0)
+                .sort((a, b) => b[1] - a[1]);
+            
+            return sorted.slice(0, 2); // Top 2 Farben
+        }
+        
+        function determineCompetencyState(colorAnalysis, segmentColor) {
+            const { counts, dominantColors } = colorAnalysis;
+            const total = colorAnalysis.total;
+            
+            // Mindestens 20% farbige Pixel für eine Markierung
+            const coloredPixels = total - counts.white;
+            if (coloredPixels < total * 0.2) {
+                return '0'; // Unmarkiert
+            }
+            
+            // Debug-Info ausgeben
+            const colorInfo = {
+                total,
+                coloredPixels,
+                yellowPercent: (counts.yellow / total * 100).toFixed(1),
+                counts,
+                segment: segmentColor
+            };
+            
+            // Gelb-Erkennung priorisieren (da oft übersehen)
+            const yellowRatio = counts.yellow / total;
+            if (yellowRatio > 0.4) { // 40% gelbe Pixel
+                return '4'; // Voll gelb (2. Jahr)
+            }
+            
+            // Bereichsfarbe erkennen
+            const segmentColorCount = getSegmentColorCount(counts, segmentColor);
+            const segmentRatio = segmentColorCount / total;
+            const yellowRatio2 = counts.yellow / total;
+            
+            // Sehr hoher Bereichsfarben-Anteil = voll gefüllt
+            if (segmentRatio > 0.5 && yellowRatio2 < 0.2) {
+                console.log(`Kompetenz voll ${segmentColor}:`, colorInfo);
+                return '2'; // Voll Bereichsfarbe
+            }
+            
+            // Mischung: Bereichsfarbe + Gelb
+            if (segmentRatio > 0.2 && yellowRatio2 > 0.2) {
+                console.log(`Kompetenz gemischt ${segmentColor}+gelb:`, colorInfo);
+                return '3'; // Halb Bereichsfarbe, halb gelb
+            }
+            
+            // Moderater Bereichsfarben-Anteil = halb gefüllt
+            if (segmentRatio > 0.25) {
+                console.log(`Kompetenz halb ${segmentColor}:`, colorInfo);
+                return '1'; // Halb Bereichsfarbe
+            }
+            
+            // Mäßiger Gelb-Anteil = halb gelb
+            if (yellowRatio2 > 0.2) {
+                console.log(`Kompetenz halb gelb:`, colorInfo);
+                return '1'; // Halb gelb
+            }
+            
+            console.log(`Kompetenz unmarkiert:`, colorInfo);
+            return '0'; // Unmarkiert
+        }
+        
+        function getSegmentColorCount(counts, segment) {
+            switch (segment) {
+                case 'spielen':
+                    return counts.green;
+                case 'sprechen':
+                    return counts.orange;
+                case 'denken':
+                    return counts.green; // Dunkelgrün wird als grün erkannt
+                case 'bewegung':
+                    return counts.purple;
+                case 'lebenspraxis':
+                    return counts.blue;
+                case 'soziales':
+                    return counts.red;
+                default:
+                    return 0;
+            }
+        }
+        
+        // detectSegmentColor entfernt - verwende getSegmentColorCount stattdessen
+        
+        // Erweiterte Farberkennung - angepasst an echte PDF-Farben
+        function isGreenColor(color) {
+            // Erkennt sowohl helles Grün (Spielen) als auch dunkleres Grün (Denken)
+            return color.g > color.r + 10 && color.g > color.b + 10 && color.g > 60;
+        }
+        
+        function isYellowColor(color) {
+            // Gelb für 2. Jahr - erweiterte Erkennung
+            // Klassisches Gelb: R und G hoch, B niedrig
+            const isClassicYellow = color.r > 180 && color.g > 160 && color.b < 120 && 
+                                  color.r > color.b + 60 && color.g > color.b + 40;
+            
+            // Helleres/blasseres Gelb
+            const isPaleYellow = color.r > 200 && color.g > 180 && color.b < 150 &&
+                               color.r > color.b + 50 && color.g > color.b + 30;
+            
+            // Goldenes Gelb
+            const isGoldenYellow = color.r > 170 && color.g > 140 && color.b < 100 &&
+                                 color.r > color.g + 10 && color.g > color.b + 40;
+            
+            return isClassicYellow || isPaleYellow || isGoldenYellow;
+        }
+        
+        function isRedColor(color) {
+            // Rot für Soziales Miteinander
+            return color.r > color.g + 20 && color.r > color.b + 20 && color.r > 100;
+        }
+        
+        function isBlueColor(color) {
+            // Hellblau für Lebenspraxis
+            return color.b > color.r + 10 && color.b > 100 && color.g > color.r;
+        }
+        
+        function isPurpleColor(color) {
+            // Pink/Purple für Bewegung
+            return ((color.r > 120 && color.b > 80 && color.g < color.r - 20) || // Pink
+                    (color.r > 180 && color.g < 150 && color.b > 100)); // Magenta
+        }
+        
+        function isOrangeColor(color) {
+            // Orange für Sprechen/Hören/Sehen - erweiterte Erkennung
+            // Klassisches Orange: R hoch, G mittel, B niedrig
+            const isClassicOrange = color.r > 180 && color.g > 100 && color.g < color.r - 30 && 
+                                  color.b < 120 && color.r > color.b + 60;
+            
+            // Helleres Orange
+            const isLightOrange = color.r > 200 && color.g > 120 && color.g < color.r - 20 &&
+                                color.b < 140 && color.r > color.b + 40;
+            
+            // Rötliches Orange
+            const isReddishOrange = color.r > 160 && color.g > 80 && color.g < color.r - 40 &&
+                                  color.b < 100 && color.r > color.b + 50;
+            
+            return isClassicOrange || isLightOrange || isReddishOrange;
+        }
+        
+        function isWhiteColor(color) {
+            // Weiß/unmarkiert - höhere Toleranz
+            return color.r > 180 && color.g > 180 && color.b > 180 &&
+                   Math.abs(color.r - color.g) < 30 && Math.abs(color.g - color.b) < 30;
+        }
+        
+        function applyDetectedStates(detectedStates) {
+            Object.keys(detectedStates).forEach(number => {
+                const state = detectedStates[number];
+                const numericState = parseInt(state);
+                
+                // Setze den korrekten Zustand basierend auf der erkannten Farbe
+                if (numericState === 1) {
+                    setCompetencyState(parseInt(number), 'half');
+                } else if (numericState === 2) {
+                    setCompetencyState(parseInt(number), 'full');
+                } else if (numericState >= 3) {
+                    // Für erweiterte Zustände (Mischfarben) direkt setzen
+                    const field = document.querySelector(`.field[data-number="${number}"]`);
+                    if (field) {
+                        field.setAttribute("data-state", state);
+                        fieldStates[number] = state;
+                        // Update visual appearance
+                        updateFieldAppearance(field, state, parseInt(number));
+                    }
+                }
+            });
+            
+            // Listen-Ansicht aktualisieren falls aktiv
+            if (currentView === 'liste') {
+                updateListViewCircles();
+            }
+            
+            // Profil speichern
+            saveCurrentProfile();
+        }
+        
+        function updateFieldAppearance(field, state, number) {
+            const parent = field.parentElement;
+            const halfCircles = parent.querySelectorAll('path[fill]');
+            const normalHalf = halfCircles[0];
+            const yellowHalf = halfCircles[1];
+            const text = parent.querySelector('.field-text');
+            
+            setFieldState(field, normalHalf, yellowHalf, text, state);
+        }
+        
+        function showDebugCanvas(canvas, positions) {
+            // Debug-Modus: Zeige Canvas mit markierten Positionen
+            const debugDiv = document.createElement('div');
+            debugDiv.style.cssText = `
+                position: fixed; top: 10px; left: 10px; z-index: 10000;
+                background: white; padding: 10px; border: 2px solid red;
+                max-width: 400px; max-height: 400px; overflow: auto;
+            `;
+            
+            const debugCanvas = canvas.cloneNode(true);
+            debugCanvas.style.width = '100%';
+            debugCanvas.style.height = 'auto';
+            
+            // Markiere die erkannten Positionen
+            const ctx = debugCanvas.getContext('2d');
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            
+            positions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 15, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // Kompetenz-Nummer
+                ctx.fillStyle = 'red';
+                ctx.font = '12px Arial';
+                ctx.fillText(pos.number.toString(), pos.x - 6, pos.y + 4);
+            });
+            
+            debugDiv.appendChild(debugCanvas);
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Schließen';
+            closeBtn.onclick = () => debugDiv.remove();
+            debugDiv.appendChild(closeBtn);
+            
+            document.body.appendChild(debugDiv);
+        }
+        
+        function showLoadingIndicator(message) {
+            const indicator = document.createElement('div');
+            indicator.id = 'loadingIndicator';
+            indicator.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8); color: white; padding: 20px 30px;
+                border-radius: 10px; z-index: 10000; text-align: center;
+                font-size: 16px; font-weight: 600;
+            `;
+            indicator.innerHTML = `
+                <div style="margin-bottom: 10px;">⏳</div>
+                ${message}
+            `;
+            document.body.appendChild(indicator);
+        }
+        
+        function hideLoadingIndicator() {
+            const indicator = document.getElementById('loadingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        // Sticky header now handled by CSS position: sticky
+        
+        // LocalStorage Verfügbarkeits-Check
+        function checkLocalStorageSupport() {
+            try {
+                const test = 'localStorage-test';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+        
         function startApp() {
             try {
+                // LocalStorage Check
+                if (!checkLocalStorageSupport()) {
+                    console.warn('LocalStorage nicht verfügbar - Daten werden nicht dauerhaft gespeichert');
+                    // Zeige Info-Banner
+                    const banner = document.createElement('div');
+                    banner.style.cssText = `
+                        position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+                        background: #fbbf24; color: #92400e; padding: 10px; text-align: center;
+                        font-size: 14px; font-weight: 600;
+                    `;
+                    banner.innerHTML = '⚠️ Daten werden nicht dauerhaft gespeichert. Für GitHub Pages aktivieren Sie Cookies/Local Storage in den Browser-Einstellungen.';
+                    document.body.insertBefore(banner, document.body.firstChild);
+                    
+                    // Banner nach 10 Sekunden ausblenden
+                    setTimeout(() => {
+                        if (banner.parentNode) {
+                            banner.parentNode.removeChild(banner);
+                        }
+                    }, 10000);
+                }
+                
                 loadProfiles();
+                loadProfileNotes();
                 initializeWheel();
                 console.log('Schnecke Web-App erfolgreich initialisiert');
                 
