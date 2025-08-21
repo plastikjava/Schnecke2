@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="description" content="Digitaler Beobachtungsbogen für Bildungsbereiche in Kitas">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons für PWA -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-192.png">
+    
+    <title>Bildungsbereiche Beobachtungsbogen</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5) inset;
+        }
+        
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* Info Button für Kompetenzen */
+        .info-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .info-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* Kompetenzen-Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f0f0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .kompetenz-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        
+        .kompetenz-item.spielen { border-left-color: #10b981; }
+        .kompetenz-item.sprechen { border-left-color: #ff6b35; }
+        .kompetenz-item.denken { border-left-color: #3b82f6; }
+        .kompetenz-item.bewegung { border-left-color: #ec4899; }
+        .kompetenz-item.lebenspraxis { border-left-color: #8b5cf6; }
+        .kompetenz-item.soziales { border-left-color: #ef4444; }
+        
+        .kompetenz-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        /* Profile Selector */
+        .profile-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .profile-select {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            background: white;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        
+        .profile-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .delete-profile-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid;
+            border-radius: 20px;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.normal {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .mode-btn.normal.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .mode-btn.yellow-mode {
+            border-color: #FFA500;
+            color: #FFA500;
+        }
+        
+        .mode-btn.yellow-mode.active {
+            background: #FFC700;
+            color: #333;
+            border-color: #FFC700;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+            min-height: 300px;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .sector-background {
+            fill-opacity: 0.08;
+            stroke: none;
+            filter: blur(0.5px);
+        }
+        
+        .sector-border {
+            fill: none;
+            stroke-width: 2;
+            stroke-opacity: 0.3;
+            stroke-dasharray: 5, 5;
+        }
+        
+        .center-input {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-weight: 800;
+            font-size: 14px;
+            text-align: center;
+            letter-spacing: 1px;
+            outline: none;
+            padding: 0 2px;
+            pointer-events: none;
+        }
+        
+        .center-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        .sector-label {
+            fill: #333;
+            font-size: 12px;
+            font-weight: 600;
+            text-anchor: middle;
+            opacity: 0.8;
+        }
+        
+        .field {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            stroke-width: 2;
+            fill: white;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.12));
+        }
+        
+        .field:hover {
+            stroke-width: 3;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+        }
+        
+        .field-text {
+            pointer-events: none;
+            font-size: 9px;
+            font-weight: 700;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #333;
+        }
+        
+        .field.full {
+            fill-opacity: 1;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+        }
+        
+        .field.full .field-text {
+            fill: white;
+            font-weight: 800;
+        }
+        
+        .field.yellow {
+            fill: #FFC700;
+            stroke: #FFA500;
+            filter: drop-shadow(0 2px 6px rgba(255, 199, 0, 0.4));
+        }
+        
+        .field.yellow .field-text {
+            fill: #333;
+            font-weight: 800;
+        }
+        
+        /* Bildungsbereiche Farben */
+        .spielen { stroke: #10b981; }
+        .spielen.full { fill: #10b981; }
+        .spielen-bg { fill: #10b981; }
+        
+        .sprechen { stroke: #ff6b35; }
+        .sprechen.full { fill: #ff6b35; }
+        .sprechen-bg { fill: #ff6b35; }
+        
+        .denken { stroke: #3b82f6; }
+        .denken.full { fill: #3b82f6; }
+        .denken-bg { fill: #3b82f6; }
+        
+        .bewegung { stroke: #ec4899; }
+        .bewegung.full { fill: #ec4899; }
+        .bewegung-bg { fill: #ec4899; }
+        
+        .lebenspraxis { stroke: #8b5cf6; }
+        .lebenspraxis.full { fill: #8b5cf6; }
+        .lebenspraxis-bg { fill: #8b5cf6; }
+        
+        .soziales { stroke: #ef4444; }
+        .soziales.full { fill: #ef4444; }
+        .soziales-bg { fill: #ef4444; }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(0,0,0,0.05);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .legend-item:active {
+            transform: scale(0.95);
+        }
+        
+        .legend-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            padding: 12px 28px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            display: inline-block;
+        }
+        
+        .file-label:active {
+            transform: scale(0.95);
+        }
+        
+        /* iOS Share Sheet Style Export */
+        .export-modal {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 3000;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .export-modal.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+        
+        .export-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .export-content {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .copy-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .copy-button:active {
+            transform: scale(0.98);
+        }
+        
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .save-indicator.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .field-text {
+                font-size: 7px;
+            }
+            
+            .center-text {
+                font-size: 12px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bildungsbereiche Beobachtungsbogen</h1>
+        <div class="info">Tippen Sie auf ein Feld zum Markieren • Halb gefüllt → Voll gefüllt → Leer</div>
+        
+        <!-- Profile Management -->
+        <div class="profile-selector">
+            <select class="profile-select" id="profileSelect" onchange="switchProfile()">
+                <option value="">Profil wählen...</option>
+            </select>
+            <button class="profile-btn" onclick="createNewProfile()">➕ Neues Kind</button>
+            <button class="profile-btn delete-profile-btn" onclick="deleteCurrentProfile()">🗑️ Löschen</button>
+        </div>
+        
+        <div class="mode-selector">
+            <button class="mode-btn normal active" onclick="setMode('normal')">
+                🎨 Normal-Modus
+            </button>
+            <button class="mode-btn yellow-mode" onclick="setMode('yellow')">
+                ⭐ Gelb-Modus (Fortschritt)
+            </button>
+        </div>
+        
+        <div class="wheel-container" id="wheelContainer">
+            <svg id="svgContainer" viewBox="0 0 700 700">
+                <defs>
+                    <linearGradient id="centerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                    <clipPath id="halfClipLeft">
+                        <rect x="0" y="0" width="50%" height="100%" />
+                    </clipPath>
+                </defs>
+                <text x="350" y="350" text-anchor="middle" fill="#ccc" font-size="20">Lade Schnecke...</text>
+            </svg>
+            <input type="text" class="center-input" id="nameInput" placeholder="NAME" maxlength="15" readonly>
+        </div>
+        
+        <div class="controls">
+            <button onclick="resetAll()">Alle zurücksetzen</button>
+            <button onclick="exportDataIOS()">📤 Export (JSON)</button>
+            <button onclick="shareData()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                📱 Teilen
+            </button>
+            <button onclick="exportTableHTML()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                📊 Tabelle
+            </button>
+            <label for="fileInput" class="file-label">Daten importieren</label>
+            <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #10b981;"></div>
+                <span>Spielen (1-38)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ff6b35;"></div>
+                <span>Sprechen, Hören, Sehen (39-61)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #3b82f6;"></div>
+                <span>Denken (62-90)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ec4899;"></div>
+                <span>Bewegung (91-114)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #8b5cf6;"></div>
+                <span>Lebenspraxis (115-143)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ef4444;"></div>
+                <span>Soziales Miteinander/Emotionalität (144-169)</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Button -->
+    <button class="info-button" onclick="showKompetenzen()">ℹ️</button>
+    
+    <!-- Kompetenzen Modal -->
+    <div class="modal" id="kompetenzenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Kompetenzen-Übersicht</h2>
+                <button class="modal-close" onclick="hideKompetenzen()">✕</button>
+            </div>
+            <div id="kompetenzenList"></div>
+        </div>
+    </div>
+    
+    <!-- Export Modal für iOS -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-header">
+            <h3>📤 Daten exportieren</h3>
+            <button class="modal-close" onclick="hideExportModal()">✕</button>
+        </div>
+        <div class="export-content" id="exportContent"></div>
+        <button class="copy-button" onclick="copyToClipboard()">📋 In Zwischenablage kopieren</button>
+    </div>
+    
+    <div class="save-indicator" id="saveIndicator">✓ Gespeichert</div>
+    
+    <script>
+        // Globale Variablen
+        const fieldStates = {};
+        const centerX = 350;
+        const centerY = 350;
+        let currentMode = 'normal';
+        let currentProfile = null;
+        let profiles = {};
+        
+        // Alle 169 Kompetenzen
+        const kompetenzen = {
+            1: "Bezieht Spielzeug in einfache Handlungen mit ein.",
+            2: "Probiert vieles aus.",
+            3: "Ordnet nach Formen/nach Größen.",
+            4: "Teilt auf (z. B. beim Spiel, Süßigkeiten).",
+            5: "Ordnet zu.",
+            6: "Übt Drehübungen aus (z. B. schließt Gläser, Flaschen, Schränke).",
+            7: "Wendet neu Erlerntes an.",
+            8: "Beherrscht die Handhabung von einfachem technischen Spielzeug.",
+            9: "Benutzt die Rutschbahn.",
+            10: "Benutzt den Kletterturm.",
+            11: "Benutzt Dreirad oder ähnliche Fahrmöglichkeit.",
+            12: "Benutzt Roller.",
+            13: "Benutzt Wasser, Sand und Kleister.",
+            14: "Stellt eigene und fremde Verhaltensweisen in Spielsituationen dar (Rollenspiel).",
+            15: "Lässt seiner Fantasie freien Raum.",
+            16: "Baut horizontal und vertikal.",
+            17: "Kann puzzeln.",
+            18: "Setzt seinen Körper altersentsprechend ein (z. B. nimmt Rücksicht beim Laufen).",
+            19: "Setzt Material dem Zweck entsprechend ein (z. B. malt mit entsprechendem Material).",
+            20: "Ist interessiert, neue unbekannte Wahrnehmungserfahrungen zu sammeln.",
+            21: "Hat Interesse, nach seiner Fantasie zu konstruieren.",
+            22: "Benutzt Bastelmaterial sachgemäß.",
+            23: "Ist engagiert bei seinem Handeln.",
+            24: "Benennt Farben.",
+            25: "Benennt Formen.",
+            26: "Erfasst einfache Mengenbegriffe.",
+            27: "Begreift die Zuordnung von einem Teil zum Ganzen (z. B. Puzzle).",
+            28: "In der Gruppe: übernimmt die Sprecherrolle.",
+            29: "Übernimmt die Zuhörerrolle; lässt andere ausreden und reagiert angemessen.",
+            30: "Erkennt Spielregeln.",
+            31: "Versteht die Regeln und kann sich danach verhalten.",
+            32: "Hält sich an vereinbarte Spielregeln.",
+            33: "Begreift das Gesellschaftsspiel als Spiel und erlebt Verlieren nicht als persönliches Versagen.",
+            34: "Setzt sich für Gruppenleistungen ein.",
+            35: "Trägt aktiv zum Gruppenerfolg bei.",
+            36: "Besitzt eine altersgemäße Medienkompetenz (z. B. Computer-Lernprogramme, CD-Player).",
+            37: "Besitzt Ausdauer und beendet ein Spiel.",
+            38: "Kann sich gut und ausdauernd konzentrieren (mindestens 30 min.).",
+            39: "Reagiert auf Ansprache von hinten.",
+            40: "Reagiert auf Flüstern.",
+            41: "Erkennt die Geräusche seiner Umwelt.",
+            42: "Reagiert auf Ansprache auch bei lautem Gruppengeschehen.",
+            43: "Erkennt Dinge in der Ferne.",
+            44: "Erkennt Dinge in der Nähe.",
+            45: "Singt einfache Melodien.",
+            46: "Klatscht Rhythmen nach.",
+            47: "Sagt ich, du, mein, dein.",
+            48: "Berichtet spontan Erlebnisse.",
+            49: "Erklärt, was es spielt.",
+            50: "Nimmt mündliche Anweisungen an und setzt sie um.",
+            51: "Spricht in längeren Erzähleinheiten (zwei bis drei Sätze).",
+            52: "Spricht in der Ich-Form.",
+            53: "Fragt nach Wortbedeutung.",
+            54: "Spricht deutlich.",
+            55: "Unterscheidet ähnlich klingende Wörter (z. B. Hose/Dose).",
+            56: "Kann konzentriert zuhören.",
+            57: "Erzählt Erlebnisse in logischer und realistischer Reihenfolge.",
+            58: "Unterscheidet Realität und Fantasie.",
+            59: "Erkennt Zusammenhänge (Märchen, Erlebnisse...).",
+            60: "Ordnet Bezeichnungen Oberbegriffen zu (z. B. Tisch = Möbel, Apfel = Obst).",
+            61: "Wendet grammatikalische Grundregeln richtig an (Plural, Vergangenheit etc.).",
+            62: "Ist neugierig.",
+            63: "Überträgt Gelerntes auf neue Situationen.",
+            64: "Ordnet Tätigkeiten im Tagesverlauf bestimmten Tageszeiten zu.",
+            65: "Sortiert nach Größen.",
+            66: "Entwickelt eigene Ideen mit Materialien und führt sie aus.",
+            67: "Unterscheidet gestern, heute und morgen.",
+            68: "Zeigt räumliche Vorstellungskraft: unten, neben, auf.",
+            69: "Strukturiert, ordnet, sortiert.",
+            70: "Interessiert sich für seine Umwelt.",
+            71: "Besitzt Interesse an der lebenden Natur.",
+            72: "Zeigt Respekt gegenüber Tieren und Pflanzen.",
+            73: "Beschäftigt sich eine Zeit alleine.",
+            74: "Hat Interesse an Büchern.",
+            75: "Ordnet Mengen und Zahlen einander zu.",
+            76: "Geht kleinere Probleme aktiv an.",
+            77: "Zeigt Flexibilität in neuen Situationen.",
+            78: "Kennt verschiedene Verwendungssituationen von Zahlen (Alter, Hausnummer, Telefonnummer).",
+            79: "Geht spielerisch mit Zahlen um (Zahlenraum bis 10 - Additionsaufgaben durch Abzählen).",
+            80: "Versteht Anweisungen, ein Rezept oder eine Anleitung und führt sie aus.",
+            81: "Strengt sich an, Aufgaben zu bewältigen.",
+            82: "Wendet sich über einen angemessenen Zeitraum vorgegebenen Tätigkeiten zu.",
+            83: "Geht mit Leistungsanforderungen positiv um.",
+            84: "Führt Aufgaben ohne ständiges Feedback aus.",
+            85: "Erträgt Ablehnung von Wünschen.",
+            86: "Probiert Neues aus, ist lernbegierig.",
+            87: "Erkennt Naturphänomene und beschreibt sie (z. B. Wettererscheinungen, Jahreszeiten).",
+            88: "Beherrscht die Zahlwortreihe bis 20.",
+            89: "Kann sagen, welche Zahl im Zahlenraum 10 größer/kleiner ist.",
+            90: "Malt geometrische Formen (Kreis, Viereck, Dreieck).",
+            91: "Zeigt Bewegungsfreude.",
+            92: "Krabbelt auf allen vieren.",
+            93: "Benutzt Spielgeräte auf dem Außengelände; probiert mutig Neues aus.",
+            94: "Nutzt Material z. B. bei der Bewegungsbaustelle.",
+            95: "Testet seine körperlichen Möglichkeiten.",
+            96: "Fühlt sich wohl in seiner Haut.",
+            97: "Orientiert sich im Raum/hat Raumgefühl.",
+            98: "Balanciert auf einer Linie.",
+            99: "Greift kleine Gegenstände sicher.",
+            100: "Passt Bewegung bewusst Situationen an.",
+            101: "Lokalisiert Berührungen am eigenen Körper.",
+            102: "Schätzt seine Kraft im Spiel mit anderen ein.",
+            103: "Ertastet Formen und Materialien.",
+            104: "Schneidet mit der Schere.",
+            105: "Reiht Perlen auf.",
+            106: "Knetet Figuren.",
+            107: "Gießt in einen Becher ein.",
+            108: "Steigt Treppen hinauf und hinunter (benutzt dabei rechtes und linkes Bein).",
+            109: "Malt Linien zwischen zwei Punkten.",
+            110: "Schneidet entlang einer Linie.",
+            111: "Schneidet einfache Formen aus.",
+            112: "Hält Gleichgewicht.",
+            113: "Findet Räume in seiner vertrauten Umgebung wieder.",
+            114: "Beherrscht den Umgang mit Schreibmaterial.",
+            115: "Holt sich Hilfe.",
+            116: "Zieht sich aus.",
+            117: "Zieht sich an.",
+            118: "Isst und trinkt selbstständig.",
+            119: "Wäscht sich die Hände.",
+            120: "Trocknet sich die Hände ab.",
+            121: "Putzt sich die Zähne.",
+            122: "Benutzt die Toilette.",
+            123: "Fegt z. B. den Gruppenraum.",
+            124: "Räumt auf.",
+            125: "Trocknet ab.",
+            126: "Deckt den Tisch (mit Unterstützung).",
+            127: "Räumt den Tisch alleine ab und stellt das Geschirr an die richtige Stelle.",
+            128: "Deckt alleine den Tisch.",
+            129: "Geht in die Nachbargruppe und gibt etwas ab.",
+            130: "Sucht andere Personen in der Kita, um etwas abzugeben.",
+            131: "Spielt mit anderen Kindern, die nicht in seiner Gruppe sind.",
+            132: "Kann die Schuhe richtig anziehen.",
+            133: "Benutzt das Besteck (isst mit Messer und Gabel).",
+            134: "Knöpft auf/zu.",
+            135: "Ist in der Lage, mit Lebensmitteln bewusst umzugehen.",
+            136: "Schließt Reißverschluss.",
+            137: "Findet seine Kleidungsstücke.",
+            138: "Bindet Schleife.",
+            139: "Erkennt und versteht gebräuchliche Symbole und Piktogramme.",
+            140: "Unterscheidet verschiedene Materialbeschaffenheiten.",
+            141: "Zeigt angemessene Reaktionen bei Hautkontakt mit z. B. Wasser, Sand, Kleister.",
+            142: "Leitet aus Verkehrszeichen Handlungen ab.",
+            143: "Kennt Verkehrsregeln und setzt sie um (z. B. Ampel, Zebrastreifen, Geh- und Radweg).",
+            144: "Trennt sich von der Bezugsperson.",
+            145: "Kennt seine Gruppe und seine Erzieherin.",
+            146: "Nimmt Kontaktangebote anderer an.",
+            147: "Baut Beziehung zur Erzieherin auf.",
+            148: "Benutzt Höflichkeitsformen (Guten Tag, danke, bitte etc.).",
+            149: "Zeigt Empfindungen wie Staunen, Trauer, Freude, Ärger.",
+            150: "Zeigt emotionale Offenheit.",
+            151: "Nimmt Rücksicht.",
+            152: "Ist hilfsbereit.",
+            153: "Setzt sich sprachlich mit anderen Kindern auseinander.",
+            154: "Integriert sich in seine Gruppe.",
+            155: "Hat die Fähigkeit, in einer Kleingruppe zu arbeiten.",
+            156: "Bildet Freundschaften.",
+            157: "Achtet fremdes Eigentum.",
+            158: "Achtet auf seine Sachen.",
+            159: "Behält die Übersicht im Gruppengeschehen.",
+            160: "Verhält sich in Konfliktsituationen kooperativ.",
+            161: "Kann nicht eindeutige Situationen in gewissem Rahmen aushalten (z. B. Besuch des Nikolaus).",
+            162: "Nimmt eigene Befindlichkeiten wahr und teilt sie mit.",
+            163: "Kann seine eigenen Wünsche und Bedürfnisse zurückstellen.",
+            164: "Benennt Gründe für Angst.",
+            165: "Zeigt soziales Verhalten in der Gruppe.",
+            166: "Ergreift Partei für andere Kinder.",
+            167: "Zeigt Konfliktlösungen.",
+            168: "Freut sich auf die Schule.",
+            169: "Besitzt ein positives Selbstwertgefühl."
+        };
+        
+        // Kompetenzen Modal anzeigen
+        function showKompetenzen() {
+            const modal = document.getElementById('kompetenzenModal');
+            const list = document.getElementById('kompetenzenList');
+            
+            // Liste erstellen
+            list.innerHTML = '';
+            
+            const categories = [
+                { name: 'spielen', label: 'Spielen', start: 1, end: 38 },
+                { name: 'sprechen', label: 'Sprechen, Hören, Sehen', start: 39, end: 61 },
+                { name: 'denken', label: 'Denken', start: 62, end: 90 },
+                { name: 'bewegung', label: 'Bewegung', start: 91, end: 114 },
+                { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143 },
+                { name: 'soziales', label: 'Soziales/Emotionalität', start: 144, end: 169 }
+            ];
+            
+            categories.forEach(cat => {
+                const section = document.createElement('div');
+                section.innerHTML = `<h3 style="color: #667eea; margin: 20px 0 10px 0;">${cat.label}</h3>`;
+                
+                for (let i = cat.start; i <= cat.end; i++) {
+                    const item = document.createElement('div');
+                    item.className = `kompetenz-item ${cat.name}`;
+                    item.innerHTML = `<span class="kompetenz-number">${i}.</span> ${kompetenzen[i]}`;
+                    section.appendChild(item);
+                }
+                
+                list.appendChild(section);
+            });
+            
+            modal.classList.add('show');
+        }
+        
+        function hideKompetenzen() {
+            document.getElementById('kompetenzenModal').classList.remove('show');
+        }
+        
+        // iOS-kompatible Export-Funktionen
+        function exportDataIOS() {
+            const data = {
+                version: "5.0",
+                timestamp: new Date().toISOString(),
+                name: currentProfile || document.getElementById('nameInput').value || '',
+                fields: {}
+            };
+            
+            document.querySelectorAll('.field').forEach(field => {
+                const state = field.getAttribute("data-state");
+                if (state !== "0") {
+                    data.fields[field.getAttribute("data-number")] = state;
+                }
+            });
+            
+            const json = JSON.stringify(data, null, 2);
+            
+            // Zeige Export Modal
+            document.getElementById('exportContent').textContent = json;
+            document.getElementById('exportModal').classList.add('show');
+        }
+        
+        function hideExportModal() {
+            document.getElementById('exportModal').classList.remove('show');
+        }
+        
+        function copyToClipboard() {
+            const content = document.getElementById('exportContent').textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(content).then(() => {
+                    alert('✅ In Zwischenablage kopiert! Sie können es jetzt in Notizen oder einer anderen App einfügen.');
+                    hideExportModal();
+                }).catch(() => {
+                    fallbackCopy(content);
+                });
+            } else {
+                fallbackCopy(content);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('✅ In Zwischenablage kopiert!');
+                hideExportModal();
+            } catch (err) {
+                alert('❌ Kopieren fehlgeschlagen. Bitte manuell markieren und kopieren.');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // Share API für iOS
+        function shareData() {
+            const data = {
+                version: "5.0",
+                timestamp: new Date().toISOString(),
+                name: currentProfile || 'Beobachtung',
+                fields: {}
+            };
+            
+            document.querySelectorAll('.field').forEach(field => {
+                const state = field.getAttribute("data-state");
+                if (state !== "0") {
+                    data.fields[field.getAttribute("data-number")] = state;
+                }
+            });
+            
+            const json = JSON.stringify(data, null, 2);
+            
+            if (navigator.share) {
+                const file = new File([json], `${data.name}_${new Date().getFullYear()}.json`, {
+                    type: 'application/json'
+                });
+                
+                navigator.share({
+                    title: `Beobachtungsbogen ${data.name}`,
+                    text: `Beobachtungsdaten für ${data.name}`,
+                    files: [file]
+                }).catch(err => {
+                    // Fallback: zeige Export Modal
+                    document.getElementById('exportContent').textContent = json;
+                    document.getElementById('exportModal').classList.add('show');
+                });
+            } else {
+                // Fallback: zeige Export Modal
+                document.getElementById('exportContent').textContent = json;
+                document.getElementById('exportModal').classList.add('show');
+            }
+        }
+        
+        // HTML Tabelle für bessere Darstellung
+        function exportTableHTML() {
+            const name = currentProfile || 'Kind';
+            const date = new Date().toLocaleDateString('de-DE');
+            
+            let html = `<h2>Beobachtungsbogen - ${name}</h2>`;
+            html += `<p>Datum: ${date}</p>`;
+            html += `<style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background: #f0f0f0; }
+                .marked { background: #e8f5e9; font-weight: bold; }
+            </style>`;
+            html += `<table>`;
+            html += `<tr><th>Nr.</th><th>Kompetenz</th><th>Status</th></tr>`;
+            
+            document.querySelectorAll('.field').forEach(field => {
+                const state = field.getAttribute("data-state");
+                const number = field.getAttribute("data-number");
+                
+                if (state !== "0") {
+                    let status = '';
+                    if (state === "1") status = '◐ Teilweise';
+                    else if (state === "2") status = '● Erfüllt';
+                    else if (state === "3") status = '◑ Fortschritt';
+                    else if (state === "4") status = '◒ Kombi';
+                    else if (state === "5") status = '★ Fortschritt voll';
+                    
+                    html += `<tr class="marked">`;
+                    html += `<td>${number}</td>`;
+                    html += `<td>${kompetenzen[number] || ''}</td>`;
+                    html += `<td>${status}</td>`;
+                    html += `</tr>`;
+                }
+            });
+            
+            html += `</table>`;
+            
+            // Öffne in neuem Tab
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(html);
+            newWindow.document.close();
+        }
+        
+        // Profile Management
+        function loadProfiles() {
+            const saved = localStorage.getItem('schneckeProfiles');
+            if (saved) {
+                profiles = JSON.parse(saved);
+            }
+            updateProfileSelect();
+        }
+        
+        function updateProfileSelect() {
+            const select = document.getElementById('profileSelect');
+            select.innerHTML = '<option value="">Profil wählen...</option>';
+            
+            for (const name in profiles) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                if (name === currentProfile) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            }
+        }
+        
+        function createNewProfile() {
+            const name = prompt('Name des Kindes:');
+            if (name && name.trim()) {
+                const profileName = name.trim();
+                if (profiles[profileName]) {
+                    alert('Ein Profil mit diesem Namen existiert bereits!');
+                    return;
+                }
+                
+                profiles[profileName] = {
+                    fields: {},
+                    lastModified: new Date().toISOString()
+                };
+                
+                saveProfiles();
+                currentProfile = profileName;
+                loadProfile(profileName);
+                updateProfileSelect();
+                document.getElementById('nameInput').value = profileName;
+            }
+        }
+        
+        function switchProfile() {
+            const select = document.getElementById('profileSelect');
+            const profileName = select.value;
+            
+            if (profileName) {
+                saveCurrentProfile();
+                currentProfile = profileName;
+                loadProfile(profileName);
+            }
+        }
+        
+        function loadProfile(profileName) {
+            if (!profiles[profileName]) return;
+            
+            resetAllWithoutConfirm();
+            
+            const profile = profiles[profileName];
+            document.getElementById('nameInput').value = profileName;
+            
+            if (profile.fields) {
+                Object.keys(profile.fields).forEach(number => {
+                    const state = profile.fields[number];
+                    const field = document.querySelector(`.field[data-number="${number}"]`);
+                    if (field) {
+                        const parent = field.parentElement;
+                        const halfCircles = parent.querySelectorAll('path[fill]');
+                        const normalHalf = halfCircles[0];
+                        const yellowHalf = halfCircles[1];
+                        const text = parent.querySelector('.field-text');
+                        
+                        setFieldState(field, normalHalf, yellowHalf, text, state);
+                        fieldStates[number] = state;
+                    }
+                });
+            }
+        }
+        
+        function saveCurrentProfile() {
+            if (!currentProfile) return;
+            
+            const states = {};
+            document.querySelectorAll('.field').forEach(field => {
+                const state = field.getAttribute("data-state");
+                if (state !== "0") {
+                    states[field.getAttribute("data-number")] = state;
+                }
+            });
+            
+            profiles[currentProfile] = {
+                fields: states,
+                lastModified: new Date().toISOString()
+            };
+            
+            saveProfiles();
+            showSaveIndicator();
+        }
+        
+        function saveProfiles() {
+            localStorage.setItem('schneckeProfiles', JSON.stringify(profiles));
+        }
+        
+        function deleteCurrentProfile() {
+            if (!currentProfile) {
+                alert('Bitte wählen Sie zuerst ein Profil aus.');
+                return;
+            }
+            
+            if (confirm(`Möchten Sie das Profil "${currentProfile}" wirklich löschen?`)) {
+                delete profiles[currentProfile];
+                saveProfiles();
+                currentProfile = null;
+                resetAllWithoutConfirm();
+                document.getElementById('nameInput').value = '';
+                updateProfileSelect();
+            }
+        }
+        
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+        
+        function setFieldState(field, normalHalf, yellowHalf, text, state) {
+            field.setAttribute("data-state", state);
+            field.classList.remove('full', 'yellow');
+            
+            if (state === "0") {
+                field.style.fill = 'white';
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            } else if (state === "1") {
+                field.style.fill = 'white';
+                if (normalHalf) normalHalf.style.display = 'block';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            } else if (state === "2") {
+                field.classList.add('full');
+                field.style.fill = '';
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = 'white';
+            } else if (state === "3") {
+                field.style.fill = 'white';
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) yellowHalf.style.display = 'block';
+                if (text) text.style.fill = '#333';
+            } else if (state === "4") {
+                field.style.fill = 'white';
+                if (normalHalf) normalHalf.style.display = 'block';
+                if (yellowHalf) yellowHalf.style.display = 'block';
+                if (text) text.style.fill = '#333';
+            } else if (state === "5") {
+                field.classList.add('yellow');
+                field.style.fill = '';
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            }
+        }
+        
+        // Sektoren-Definitionen
+        const sectors = [
+            { name: 'spielen', label: 'Spielen', start: 1, end: 38, startAngle: 0, color: '#10b981' },
+            { name: 'sprechen', label: 'Sprechen, Hören, Sehen', start: 39, end: 61, startAngle: 60, color: '#ff6b35' },
+            { name: 'denken', label: 'Denken', start: 62, end: 90, startAngle: 120, color: '#3b82f6' },
+            { name: 'bewegung', label: 'Bewegung', start: 91, end: 114, startAngle: 180, color: '#ec4899' },
+            { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143, startAngle: 240, color: '#8b5cf6' },
+            { name: 'soziales', label: 'Soziales/Emotionalität', start: 144, end: 169, startAngle: 300, color: '#ef4444' }
+        ];
+        
+        // Sector Layouts (gekürzt)
+        const sectorLayouts = {
+            'spielen': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 3, radius: 95 },
+                    { count: 4, radius: 120 },
+                    { count: 4, radius: 145 },
+                    { count: 5, radius: 170 },
+                    { count: 5, radius: 195 },
+                    { count: 5, radius: 220 },
+                    { count: 5, radius: 245 },
+                    { count: 5, radius: 270 }
+                ]
+            },
+            'sprechen': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 2, radius: 95 },
+                    { count: 3, radius: 120 },
+                    { count: 3, radius: 145 },
+                    { count: 3, radius: 170 },
+                    { count: 3, radius: 195 },
+                    { count: 3, radius: 220 },
+                    { count: 4, radius: 245 }
+                ]
+            },
+            'denken': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 3, radius: 95 },
+                    { count: 3, radius: 120 },
+                    { count: 3, radius: 145 },
+                    { count: 4, radius: 170 },
+                    { count: 4, radius: 195 },
+                    { count: 4, radius: 220 },
+                    { count: 3, radius: 245 },
+                    { count: 3, radius: 270 }
+                ]
+            },
+            'bewegung': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 2, radius: 95 },
+                    { count: 3, radius: 120 },
+                    { count: 3, radius: 145 },
+                    { count: 3, radius: 170 },
+                    { count: 3, radius: 195 },
+                    { count: 4, radius: 220 },
+                    { count: 4, radius: 245 }
+                ]
+            },
+            'lebenspraxis': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 3, radius: 95 },
+                    { count: 3, radius: 120 },
+                    { count: 3, radius: 145 },
+                    { count: 4, radius: 170 },
+                    { count: 4, radius: 195 },
+                    { count: 4, radius: 220 },
+                    { count: 3, radius: 245 },
+                    { count: 3, radius: 270 }
+                ]
+            },
+            'soziales': {
+                rings: [
+                    { count: 2, radius: 70 },
+                    { count: 2, radius: 95 },
+                    { count: 3, radius: 120 },
+                    { count: 3, radius: 145 },
+                    { count: 3, radius: 170 },
+                    { count: 4, radius: 195 },
+                    { count: 4, radius: 220 },
+                    { count: 3, radius: 245 },
+                    { count: 2, radius: 270 }
+                ]
+            }
+        };
+        
+        // SVG-Hilfsfunktionen
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
+        
+        function describeArc(x, y, radius, startAngle, endAngle) {
+            const start = polarToCartesian(x, y, radius, endAngle);
+            const end = polarToCartesian(x, y, radius, startAngle);
+            const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+            return [
+                "M", x, y,
+                "L", start.x, start.y,
+                "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+                "Z"
+            ].join(" ");
+        }
+        
+        // Sektor erstellen
+        function createSectorBackground(sector) {
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            
+            const bg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            bg.setAttribute("d", describeArc(centerX, centerY, 295, sector.startAngle, sector.startAngle + 60));
+            bg.setAttribute("class", `sector-background ${sector.name}-bg`);
+            g.appendChild(bg);
+            
+            const border = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            border.setAttribute("d", describeArc(centerX, centerY, 295, sector.startAngle, sector.startAngle + 60));
+            border.setAttribute("class", `sector-border`);
+            border.setAttribute("stroke", sector.color);
+            g.appendChild(border);
+            
+            const labelAngle = sector.startAngle + 30;
+            const labelRadius = 320;
+            const labelPos = polarToCartesian(centerX, centerY, labelRadius, labelAngle);
+            
+            const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            label.setAttribute("x", labelPos.x);
+            label.setAttribute("y", labelPos.y);
+            label.setAttribute("class", "sector-label");
+            label.setAttribute("transform", `rotate(${labelAngle}, ${labelPos.x}, ${labelPos.y})`);
+            label.textContent = sector.label;
+            g.appendChild(label);
+            
+            return g;
+        }
+        
+        // Feld erstellen
+        function createField(number, sector, ringIndex, posInRing, totalInRing, radius) {
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            
+            const sectorWidth = 42;
+            const startOffset = 9;
+            
+            let angle;
+            if (totalInRing === 1) {
+                angle = sector.startAngle + 30;
+            } else {
+                const angleStep = sectorWidth / (totalInRing - 1);
+                angle = sector.startAngle + startOffset + (posInRing * angleStep);
+            }
+            
+            const pos = polarToCartesian(centerX, centerY, radius, angle);
+            
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", pos.x);
+            circle.setAttribute("cy", pos.y);
+            circle.setAttribute("r", "10");
+            circle.setAttribute("class", `field ${sector.name}`);
+            circle.setAttribute("data-number", number);
+            circle.setAttribute("data-state", "0");
+            circle.setAttribute("data-category", sector.name);
+            
+            const halfCircle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const halfArcPath = `M ${pos.x - 10} ${pos.y} A 10 10 0 0 0 ${pos.x + 10} ${pos.y} Z`;
+            halfCircle.setAttribute("d", halfArcPath);
+            halfCircle.setAttribute("fill", sector.color);
+            halfCircle.style.display = 'none';
+            halfCircle.style.pointerEvents = 'none';
+            
+            const yellowHalfCircle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const yellowHalfArcPath = `M ${pos.x - 10} ${pos.y} A 10 10 0 0 1 ${pos.x + 10} ${pos.y} Z`;
+            yellowHalfCircle.setAttribute("d", yellowHalfArcPath);
+            yellowHalfCircle.setAttribute("fill", "#FFC700");
+            yellowHalfCircle.style.display = 'none';
+            yellowHalfCircle.style.pointerEvents = 'none';
+            
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", pos.x);
+            text.setAttribute("y", pos.y);
+            text.setAttribute("class", "field-text");
+            text.textContent = number;
+            
+            g.appendChild(circle);
+            g.appendChild(halfCircle);
+            g.appendChild(yellowHalfCircle);
+            g.appendChild(text);
+            
+            // Nur Click-Event für iOS
+            circle.addEventListener('click', function() {
+                toggleField(this, halfCircle, yellowHalfCircle, text);
+            });
+            
+            return g;
+        }
+        
+        // Rest der Funktionen...
+        function toggleField(field, halfCircle, yellowHalfCircle, textElement) {
+            const currentState = field.getAttribute("data-state") || "0";
+            const category = field.getAttribute("data-category");
+            let newState;
+            
+            if (currentMode === 'normal') {
+                if (currentState === "0") newState = "1";
+                else if (currentState === "1") newState = "2";
+                else if (currentState === "2") newState = "0";
+                else if (currentState === "3") newState = "4";
+                else if (currentState === "4") newState = "2";
+                else if (currentState === "5") newState = "0";
+                else newState = "0";
+            } else {
+                if (currentState === "0") newState = "3";
+                else if (currentState === "1") newState = "4";
+                else if (currentState === "2") newState = "4";
+                else if (currentState === "3") newState = "5";
+                else if (currentState === "4") newState = "5";
+                else if (currentState === "5") newState = "0";
+                else newState = "3";
+            }
+            
+            setFieldState(field, halfCircle, yellowHalfCircle, textElement, newState);
+            fieldStates[field.getAttribute("data-number")] = newState;
+            
+            saveCurrentProfile();
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (mode === 'normal') {
+                document.querySelector('.mode-btn.normal').classList.add('active');
+            } else {
+                document.querySelector('.mode-btn.yellow-mode').classList.add('active');
+            }
+        }
+        
+        function initializeWheel() {
+            const svg = document.getElementById('svgContainer');
+            
+            const toRemove = [];
+            for (let child of svg.children) {
+                if (child.tagName !== 'defs') {
+                    toRemove.push(child);
+                }
+            }
+            toRemove.forEach(child => svg.removeChild(child));
+            
+            sectors.forEach(sector => {
+                svg.appendChild(createSectorBackground(sector));
+            });
+            
+            sectors.forEach(sector => {
+                const layout = sectorLayouts[sector.name];
+                let currentNumber = sector.start;
+                
+                layout.rings.forEach((ring, ringIndex) => {
+                    for (let i = 0; i < ring.count && currentNumber <= sector.end; i++) {
+                        svg.appendChild(createField(
+                            currentNumber,
+                            sector,
+                            ringIndex,
+                            i,
+                            ring.count,
+                            ring.radius
+                        ));
+                        currentNumber++;
+                    }
+                });
+            });
+            
+            const centerCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            centerCircle.setAttribute("cx", centerX);
+            centerCircle.setAttribute("cy", centerY);
+            centerCircle.setAttribute("r", "40");
+            centerCircle.setAttribute("fill", "url(#centerGradient)");
+            centerCircle.setAttribute("stroke", "white");
+            centerCircle.setAttribute("stroke-width", "4");
+            centerCircle.style.filter = "drop-shadow(0 4px 12px rgba(0,0,0,0.15))";
+            svg.appendChild(centerCircle);
+        }
+        
+        function resetAll() {
+            if (confirm('Möchten Sie wirklich alle Felder zurücksetzen?')) {
+                resetAllWithoutConfirm();
+                saveCurrentProfile();
+            }
+        }
+        
+        function resetAllWithoutConfirm() {
+            document.querySelectorAll('.field').forEach(field => {
+                field.setAttribute("data-state", "0");
+                field.classList.remove('full', 'yellow');
+                field.style.fill = 'white';
+            });
+            document.querySelectorAll('path[fill]').forEach(halfCircle => {
+                if (halfCircle.getAttribute('fill') !== 'white' && 
+                    halfCircle.getAttribute('fill') !== 'url(#centerGradient)' &&
+                    !halfCircle.classList.contains('sector-background')) {
+                    halfCircle.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.field-text').forEach(text => {
+                text.style.fill = '#333';
+            });
+            Object.keys(fieldStates).forEach(key => delete fieldStates[key]);
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.name) {
+                        const profileName = data.name;
+                        
+                        if (!profiles[profileName]) {
+                            profiles[profileName] = {
+                                fields: data.fields || {},
+                                lastModified: new Date().toISOString()
+                            };
+                            saveProfiles();
+                        } else {
+                            if (!confirm(`Profil "${profileName}" existiert bereits. Überschreiben?`)) {
+                                return;
+                            }
+                            profiles[profileName].fields = data.fields || {};
+                            profiles[profileName].lastModified = new Date().toISOString();
+                            saveProfiles();
+                        }
+                        
+                        currentProfile = profileName;
+                        loadProfile(profileName);
+                        updateProfileSelect();
+                    }
+                    
+                    alert('Daten erfolgreich importiert!');
+                } catch (error) {
+                    alert('Fehler beim Importieren der Datei.');
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        // App initialisieren
+        function startApp() {
+            try {
+                loadProfiles();
+                initializeWheel();
+                console.log('Schnecke Web-App erfolgreich initialisiert');
+                
+                // Service Worker registrieren für PWA
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('sw.js')
+                        .then(reg => console.log('Service Worker registriert'))
+                        .catch(err => console.log('Service Worker Fehler:', err));
+                }
+            } catch (error) {
+                console.error('Fehler beim Initialisieren:', error);
+                setTimeout(startApp, 100);
+            }
+        }
+        
+        // Start
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
+        }
+        
+        window.addEventListener('load', startApp);
+    </script>
+</body>
+</html>
