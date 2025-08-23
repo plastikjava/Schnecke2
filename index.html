@@ -1988,13 +1988,27 @@
             
             // Sammle alle Kompetenzen mit Zuständen
             const competencyData = [];
+            const allStates = [];
             
+            // Erst alle States sammeln
+            for (let i = 1; i <= 169; i++) {
+                const field = document.querySelector(`.field[data-number="${i}"]`);
+                const state = field ? field.getAttribute("data-state") || "0" : "0";
+                allStates.push(state);
+            }
+            
+            // Prüfe, ob sowohl gelbe als auch türkise Markierungen vorhanden sind
+            const hasYellowStates = allStates.some(state => ['3', '4', '5', '9', '10'].includes(state));
+            const hasTurquoiseStates = allStates.some(state => ['6', '7', '8', '9', '10'].includes(state));
+            const hasBothYellowAndTurquoise = hasYellowStates && hasTurquoiseStates;
+            
+            // Jetzt die Kompetenzen mit angepasster Beschreibung sammeln
             for (let i = 1; i <= 169; i++) {
                 const field = document.querySelector(`.field[data-number="${i}"]`);
                 const state = field ? field.getAttribute("data-state") || "0" : "0";
                 const category = getCategoryForNumber(i);
                 const categoryName = getCategoryName(category);
-                const statusText = getStateDescription(state, category);
+                const statusText = getStateDescriptionForExport(state, category, hasBothYellowAndTurquoise);
                 
                 competencyData.push({
                     number: i,
@@ -2072,6 +2086,48 @@
                 case "7":
                     return "Kompetenz vorhanden - Steigerung zum Vorjahr";
                 case "8":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "9":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "10":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                default:
+                    return "noch nicht vorhanden";
+            }
+        }
+
+        // Hilfsfunktion zur Übersetzung der Zustände für EG Export
+        function getStateDescriptionForExport(state, category, hasBothYellowAndTurquoise) {
+            switch (state) {
+                case "0":
+                    return "noch nicht vorhanden";
+                case "1":
+                    return "Kompetenz teilweise erfüllt";
+                case "2":
+                    return "Kompetenz vorhanden";
+                case "3":
+                    // Halb gelb - nur "Steigerung" wenn KEINE türkisen vorhanden
+                    return hasBothYellowAndTurquoise ? "Kompetenz teilweise erfüllt" : "Kompetenz teilweise erfüllt - Steigerung zum Vorjahr";
+                case "4":
+                    // Halb Bereichsfarbe + halb gelb - nur "Steigerung" wenn KEINE türkisen vorhanden
+                    return hasBothYellowAndTurquoise ? "Kompetenz vorhanden" : "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "5":
+                    // Ganz gelb - nur "Steigerung" wenn KEINE türkisen vorhanden
+                    return hasBothYellowAndTurquoise ? "Kompetenz vorhanden" : "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "6":
+                    // Halb türkis - immer "Steigerung"
+                    return "Kompetenz teilweise erfüllt - Steigerung zum Vorjahr";
+                case "7":
+                    // Halb Bereichsfarbe + halb türkis - immer "Steigerung"
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "8":
+                    // Ganz türkis - immer "Steigerung"
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "9":
+                    // Halb gelb + halb türkis - immer "Steigerung" (türkis ist dominant)
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "10":
+                    // Halb türkis + halb gelb - immer "Steigerung" (türkis ist dominant)
                     return "Kompetenz vorhanden - Steigerung zum Vorjahr";
                 default:
                     return "noch nicht vorhanden";
@@ -2239,6 +2295,16 @@
             field.setAttribute("data-state", state);
             field.classList.remove('full', 'yellow', 'lightyellow');
             
+            // Reset alle Half-Element-Farben zu ursprünglichen Werten
+            if (normalHalf) {
+                const category = field.getAttribute("data-category");
+                const categoryColor = getCategoryColor(category);
+                normalHalf.setAttribute('fill', categoryColor);
+            }
+            if (yellowHalf) {
+                yellowHalf.setAttribute('fill', '#FFC700'); // Original gelb
+            }
+            
             if (state === "0") {
                 field.style.fill = 'white';
                 if (normalHalf) normalHalf.style.display = 'none';
@@ -2258,12 +2324,18 @@
             } else if (state === "3") {
                 field.style.fill = 'white';
                 if (normalHalf) normalHalf.style.display = 'none';
-                if (yellowHalf) yellowHalf.style.display = 'block';
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#FFC700'); // Zurück zu gelb
+                }
                 if (text) text.style.fill = '#333';
             } else if (state === "4") {
                 field.style.fill = 'white';
                 if (normalHalf) normalHalf.style.display = 'block';
-                if (yellowHalf) yellowHalf.style.display = 'block';
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#FFC700'); // Zurück zu gelb
+                }
                 if (text) text.style.fill = '#333';
             } else if (state === "5") {
                 field.classList.add('yellow');
@@ -2272,39 +2344,53 @@
                 if (yellowHalf) yellowHalf.style.display = 'none';
                 if (text) text.style.fill = '#333';
             } else if (state === "6") {
+                // Halb türkis - verwende yellowHalf mit türkiser Farbe
                 field.style.fill = 'white';
-                if (normalHalf) {
-                    normalHalf.style.display = 'none';
-                    // Erstelle türkise Hälfte
-                    const lightYellowHalf = normalHalf.cloneNode();
-                    lightYellowHalf.setAttribute('fill', '#06b6d4');
-                    lightYellowHalf.style.display = 'block';
-                    if (!normalHalf.nextSibling || normalHalf.nextSibling.getAttribute('fill') !== '#06b6d4') {
-                        normalHalf.parentNode.insertBefore(lightYellowHalf, normalHalf.nextSibling);
-                    }
+                if (normalHalf) normalHalf.style.display = 'none';
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#06b6d4');
                 }
-                if (yellowHalf) yellowHalf.style.display = 'none';
                 if (text) text.style.fill = '#333';
             } else if (state === "7") {
+                // Halb Bereichsfarbe + halb türkis
                 field.style.fill = 'white';
                 if (normalHalf) normalHalf.style.display = 'block';
-                if (yellowHalf) yellowHalf.style.display = 'none';
-                // Erstelle türkise Hälfte
-                if (normalHalf) {
-                    const lightYellowHalf = normalHalf.cloneNode();
-                    lightYellowHalf.setAttribute('fill', '#06b6d4');
-                    lightYellowHalf.setAttribute('d', `M ${normalHalf.parentElement.querySelector('circle').getAttribute('cx') - 10} ${normalHalf.parentElement.querySelector('circle').getAttribute('cy')} A 10 10 0 0 1 ${normalHalf.parentElement.querySelector('circle').getAttribute('cx') + 10} ${normalHalf.parentElement.querySelector('circle').getAttribute('cy')} Z`);
-                    lightYellowHalf.style.display = 'block';
-                    if (!normalHalf.nextSibling || normalHalf.nextSibling.getAttribute('fill') !== '#06b6d4') {
-                        normalHalf.parentNode.insertBefore(lightYellowHalf, normalHalf.nextSibling);
-                    }
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#06b6d4');
                 }
                 if (text) text.style.fill = '#333';
             } else if (state === "8") {
+                // Ganz türkis
                 field.classList.add('lightyellow');
                 field.style.fill = '';
                 if (normalHalf) normalHalf.style.display = 'none';
                 if (yellowHalf) yellowHalf.style.display = 'none';
+                if (text) text.style.fill = '#333';
+            } else if (state === "9") {
+                // Halb Gelb + halb Türkis
+                field.style.fill = 'white';
+                if (normalHalf) {
+                    normalHalf.style.display = 'block';
+                    normalHalf.setAttribute('fill', '#FFC700'); // Gelbe Hälfte
+                }
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#06b6d4'); // Türkise Hälfte
+                }
+                if (text) text.style.fill = '#333';
+            } else if (state === "10") {
+                // Halb Türkis + halb Gelb
+                field.style.fill = 'white';
+                if (normalHalf) {
+                    normalHalf.style.display = 'block';
+                    normalHalf.setAttribute('fill', '#06b6d4'); // Türkise Hälfte
+                }
+                if (yellowHalf) {
+                    yellowHalf.style.display = 'block';
+                    yellowHalf.setAttribute('fill', '#FFC700'); // Gelbe Hälfte
+                }
                 if (text) text.style.fill = '#333';
             }
         }
@@ -2525,6 +2611,8 @@
                 else if (currentState === "6") newState = "7";
                 else if (currentState === "7") newState = "2";
                 else if (currentState === "8") newState = "0";
+                else if (currentState === "9") newState = "5"; // Gelb+Türkis -> Ganz Gelb
+                else if (currentState === "10") newState = "8"; // Türkis+Gelb -> Ganz Türkis
                 else newState = "0";
             } else if (currentMode === 'yellow') {
                 if (currentState === "0") newState = "3";
@@ -2533,20 +2621,24 @@
                 else if (currentState === "3") newState = "5";
                 else if (currentState === "4") newState = "5";
                 else if (currentState === "5") newState = "0";
-                else if (currentState === "6") newState = "4";
-                else if (currentState === "7") newState = "4";
-                else if (currentState === "8") newState = "5";
+                else if (currentState === "6") newState = "10"; // Halb Türkis -> Halb Türkis + Halb Gelb
+                else if (currentState === "7") newState = "4"; // Halb Bereichsfarbe + Halb Türkis -> Halb Bereichsfarbe + Halb Gelb
+                else if (currentState === "8") newState = "5"; // Ganz Türkis -> Ganz Gelb
+                else if (currentState === "9") newState = "5"; // Gelb+Türkis -> Ganz Gelb
+                else if (currentState === "10") newState = "5"; // Türkis+Gelb -> Ganz Gelb
                 else newState = "3";
             } else if (currentMode === 'lightyellow') {
                 if (currentState === "0") newState = "6";
                 else if (currentState === "1") newState = "7";
                 else if (currentState === "2") newState = "7";
-                else if (currentState === "3") newState = "4"; // Gelb + Hellgelb Kombination
-                else if (currentState === "4") newState = "5"; // Zu vollem Gelb
-                else if (currentState === "5") newState = "8"; // Zu vollem Hellgelb
+                else if (currentState === "3") newState = "9"; // Halb Gelb + halb Türkis (neuer State)
+                else if (currentState === "4") newState = "9"; // Halb Bereichsfarbe/Gelb + halb Türkis -> Gelb + Türkis
+                else if (currentState === "5") newState = "8"; // Ganz Gelb -> Ganz Türkis
                 else if (currentState === "6") newState = "8";
                 else if (currentState === "7") newState = "8";
                 else if (currentState === "8") newState = "0";
+                else if (currentState === "9") newState = "8"; // Gelb + Türkis -> Ganz Türkis
+                else if (currentState === "10") newState = "8"; // Türkis + Gelb -> Ganz Türkis
                 else newState = "6";
             }
             
@@ -2861,11 +2953,14 @@
                     if (currentState === "0" || currentState === "3") newState = "3";
                     else if (currentState === "1") newState = "4";
                     else if (currentState === "2") newState = "4";
+                    else if (currentState === "6") newState = "10"; // Halb Türkis -> Halb Türkis + Halb Gelb
+                    else if (currentState === "8") newState = "3"; // Ganz Türkis -> Halb Gelb
                 } else if (currentMode === 'lightyellow') {
                     if (currentState === "0" || currentState === "6") newState = "6";
                     else if (currentState === "1") newState = "7";
                     else if (currentState === "2") newState = "7";
-                    else if (currentState === "3") newState = "4"; // Gelb + Hellgelb
+                    else if (currentState === "3") newState = "9"; // Halb Gelb -> Halb Gelb + Halb Türkis
+                    else if (currentState === "5") newState = "6"; // Ganz Gelb -> Halb Türkis
                 }
             } else if (action === 'full') {
                 // Neue Logik für "Ganz" Button
@@ -2875,15 +2970,27 @@
                     // Wenn bereits halb gefüllt, zweite Hälfte mit Gelb füllen
                     if (currentState === "1") {
                         newState = "4"; // Halb Bildungsbereich-Farbe + halb gelb
+                    } else if (currentState === "6") {
+                        newState = "10"; // Halb Türkis -> Halb Türkis + Halb Gelb
+                    } else if (currentState === "8") {
+                        newState = "5"; // Ganz Türkis -> Ganz Gelb
+                    } else if (currentState === "10") {
+                        newState = "5"; // Halb Türkis + Halb Gelb -> Ganz Gelb
                     } else {
                         newState = "5"; // Ganz gelb
                     }
                 } else if (currentMode === 'lightyellow') {
                     // Wenn bereits halb gefüllt, zweite Hälfte mit Hellgelb füllen
                     if (currentState === "1") {
-                        newState = "7"; // Halb Bildungsbereich-Farbe + halb hellgelb
+                        newState = "7"; // Halb Bildungsbereich-Farbe + halb türkis
                     } else if (currentState === "3") {
-                        newState = "4"; // Gelb + Hellgelb Kombination
+                        newState = "9"; // Halb Gelb + Halb Türkis
+                    } else if (currentState === "5") {
+                        newState = "8"; // Ganz Gelb -> Ganz Türkis
+                    } else if (currentState === "6") {
+                        newState = "8"; // Halb Türkis -> Ganz Türkis
+                    } else if (currentState === "9") {
+                        newState = "8"; // Halb Gelb + Halb Türkis -> Ganz Türkis
                     } else {
                         newState = "8"; // Ganz türkis
                     }
@@ -2917,6 +3024,10 @@
             if (number >= 115 && number <= 143) return 'lebenspraxis';
             if (number >= 144 && number <= 169) return 'soziales';
             return 'spielen';
+        }
+
+        function getCategoryColor(categoryName) {
+            return categoryColors[categoryName] || '#10b981';
         }
         
         function updateCompetencyCircle(number) {
@@ -2962,6 +3073,12 @@
                 // Ganz türkis
                 circle.style.background = '#06b6d4';
                 circle.style.border = '2px solid #06b6d4';
+            } else if (state === "9") {
+                // Halb gelb + halb türkis
+                circle.style.background = `linear-gradient(to right, #FFC700 50%, #06b6d4 50%)`;
+            } else if (state === "10") {
+                // Halb türkis + halb gelb
+                circle.style.background = `linear-gradient(to right, #06b6d4 50%, #FFC700 50%)`;
             }
         }
         
