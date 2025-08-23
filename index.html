@@ -932,7 +932,8 @@
                 </defs>
                 <text x="350" y="350" text-anchor="middle" fill="#ccc" font-size="20">Lade Schnecke...</text>
             </svg>
-            <input type="text" class="center-input" id="nameInput" placeholder="NAME" maxlength="15" readonly>
+            <input type="text" class="center-input" id="nameInput" placeholder="NAME" maxlength="15" readonly style="opacity: 0; pointer-events: none;">
+            <input type="text" class="center-input" id="ageInput" placeholder="ALTER" maxlength="10" readonly style="opacity: 0; pointer-events: none; margin-top: 10px; font-size: 16px;">
         </div>
             </div> <!-- container-content -->
         </div> <!-- Ende Sticky Header -->
@@ -965,6 +966,9 @@
             </button>
             <button onclick="exportTestCompetencies()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                 📝 Test-Liste
+            </button>
+            <button onclick="exportEG()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                📋 Export EG
             </button>
             <label for="fileInput" class="file-label">📄 JSON importieren</label>
             <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
@@ -1624,7 +1628,58 @@
                 // Erstelle Druckversion
                 const printWindow = window.open('', '_blank');
                 const svg = document.getElementById('svgContainer');
-                const svgData = new XMLSerializer().serializeToString(svg);
+                
+                // Klone das SVG und füge CSS-Styles hinzu (wie beim SVG-Export)
+                const svgClone = svg.cloneNode(true);
+                
+                // Setze explizite Dimensionen
+                svgClone.setAttribute('width', '700');
+                svgClone.setAttribute('height', '700');
+                svgClone.setAttribute('viewBox', '0 0 700 700');
+                
+                // Füge CSS-Styles direkt in das SVG ein für korrekte Farbdarstellung
+                const styleElement = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                styleElement.textContent = `
+                    .field { stroke-width: 2; fill: white; }
+                    .field.full.spielen { fill: #10b981; }
+                    .field.full.sprechen { fill: #ff6b35; }
+                    .field.full.denken { fill: #3b82f6; }
+                    .field.full.bewegung { fill: #ec4899; }
+                    .field.full.lebenspraxis { fill: #8b5cf6; }
+                    .field.full.soziales { fill: #ef4444; }
+                    .field.yellow { fill: #FFC700; }
+                    .field.lightyellow { fill: #06b6d4; }
+                    .field-text { font-family: Arial, sans-serif; font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #333; }
+                    .field.full .field-text { fill: white; }
+                    .field.yellow .field-text { fill: #333; }
+                    .field.lightyellow .field-text { fill: white; }
+                    .sector-label { fill: #333; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; text-anchor: middle; }
+                    .sector-background { fill-opacity: 0.08; }
+                    .sector-border { fill: none; stroke-width: 2; stroke-opacity: 0.3; stroke-dasharray: 5, 5; }
+                    .spielen-bg { fill: #10b981; }
+                    .sprechen-bg { fill: #ff6b35; }
+                    .denken-bg { fill: #3b82f6; }
+                    .bewegung-bg { fill: #ec4899; }
+                    .lebenspraxis-bg { fill: #8b5cf6; }
+                    .soziales-bg { fill: #ef4444; }
+                    .spielen { stroke: #10b981; }
+                    .sprechen { stroke: #ff6b35; }
+                    .denken { stroke: #3b82f6; }
+                    .bewegung { stroke: #ec4899; }
+                    .lebenspraxis { stroke: #8b5cf6; }
+                    .soziales { stroke: #ef4444; }
+                    #centerText { fill: white; font-family: Arial, sans-serif; font-weight: 800; letter-spacing: 1px; }
+                `;
+                
+                // Stelle sicher, dass das <defs> Element existiert
+                let defs = svgClone.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                    svgClone.insertBefore(defs, svgClone.firstChild);
+                }
+                defs.appendChild(styleElement);
+                
+                const svgData = new XMLSerializer().serializeToString(svgClone);
                 
                 printWindow.document.write(`
                 <!DOCTYPE html>
@@ -1924,6 +1979,104 @@
             };
             return names[category] || category;
         }
+
+        // Export EG Funktion
+        function exportEG() {
+            const name = currentProfile || 'Kind';
+            const age = document.getElementById('ageInput').value || 'Nicht angegeben';
+            const date = new Date().toLocaleDateString('de-DE');
+            
+            // Sammle alle Kompetenzen mit Zuständen
+            const competencyData = [];
+            
+            for (let i = 1; i <= 169; i++) {
+                const field = document.querySelector(`.field[data-number="${i}"]`);
+                const state = field ? field.getAttribute("data-state") || "0" : "0";
+                const category = getCategoryForNumber(i);
+                const categoryName = getCategoryName(category);
+                const statusText = getStateDescription(state, category);
+                
+                competencyData.push({
+                    number: i,
+                    text: kompetenzen[i],
+                    category: categoryName,
+                    state: state,
+                    status: statusText
+                });
+            }
+            
+            // Erstelle formatierte Textdatei
+            let content = `EXPORT EG - Kompetenz-Übersicht\n`;
+            content += `=====================================\n\n`;
+            content += `Kind: ${name}\n`;
+            content += `Alter: ${age}\n`;
+            content += `Datum: ${date}\n`;
+            content += `Anzahl Kompetenzen: 169\n\n`;
+            
+            // Gruppiere nach Bildungsbereichen
+            const categories = [
+                { name: 'spielen', label: 'Spielen', start: 1, end: 38 },
+                { name: 'sprechen', label: 'Sprechen, Hören, Sehen', start: 39, end: 61 },
+                { name: 'denken', label: 'Denken', start: 62, end: 90 },
+                { name: 'bewegung', label: 'Bewegung', start: 91, end: 114 },
+                { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143 },
+                { name: 'soziales', label: 'Soziales/Emotionalität', start: 144, end: 169 }
+            ];
+            
+            categories.forEach(cat => {
+                content += `\n${cat.label.toUpperCase()}\n`;
+                content += `${'-'.repeat(cat.label.length)}\n\n`;
+                
+                for (let i = cat.start; i <= cat.end; i++) {
+                    const comp = competencyData[i - 1];
+                    content += `${i}. ${comp.text}\n`;
+                    content += `   Status: ${comp.status}\n\n`;
+                }
+            });
+            
+            // Download als Textdatei
+            try {
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Export_EG_${name}_${new Date().toISOString().split('T')[0]}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                // Fallback: Export Modal anzeigen
+                document.getElementById('exportContent').textContent = content;
+                document.getElementById('exportModal').classList.add('show');
+            }
+        }
+
+        // Hilfsfunktion zur Übersetzung der Zustände in Text
+        function getStateDescription(state, category) {
+            switch (state) {
+                case "0":
+                    return "noch nicht vorhanden";
+                case "1":
+                    return "Kompetenz teilweise erfüllt";
+                case "2":
+                    return "Kompetenz vorhanden";
+                case "3":
+                    return "Kompetenz teilweise erfüllt - Steigerung zum Vorjahr";
+                case "4":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "5":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "6":
+                    return "Kompetenz teilweise erfüllt - Steigerung zum Vorjahr";
+                case "7":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                case "8":
+                    return "Kompetenz vorhanden - Steigerung zum Vorjahr";
+                default:
+                    return "noch nicht vorhanden";
+            }
+        }
         
         // Profile Management
         function loadProfiles() {
@@ -1965,6 +2118,7 @@
                 
                 profiles[profileName] = {
                     fields: {},
+                    age: '',
                     lastModified: new Date().toISOString()
                 };
                 
@@ -1973,6 +2127,9 @@
                 loadProfile(profileName);
                 updateProfileSelect();
                 document.getElementById('nameInput').value = profileName;
+                
+                // Name im lila Kreis aktualisieren
+                updateCenterText(profileName);
             }
         }
         
@@ -1994,6 +2151,11 @@
             
             const profile = profiles[profileName];
             document.getElementById('nameInput').value = profileName;
+            document.getElementById('ageInput').value = profile.age || '';
+            
+            // Name und Alter im lila Kreis aktualisieren
+            updateCenterText(profileName);
+            updateAgeText(profile.age || '');
             
             if (profile.fields) {
                 Object.keys(profile.fields).forEach(number => {
@@ -2032,6 +2194,7 @@
             
             profiles[currentProfile] = {
                 fields: states,
+                age: document.getElementById('ageInput').value || '',
                 lastModified: new Date().toISOString()
             };
             
@@ -2484,6 +2647,39 @@
             centerCircle.setAttribute("stroke-width", "4");
             centerCircle.style.filter = "drop-shadow(0 4px 12px rgba(0,0,0,0.15))";
             svg.appendChild(centerCircle);
+            
+            // Text-Element für den Namen im lila Kreis
+            const centerText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            centerText.setAttribute("id", "centerText");
+            centerText.setAttribute("x", centerX);
+            centerText.setAttribute("y", centerY - 5); // Nach oben verschoben um Platz für Alter zu schaffen
+            centerText.setAttribute("text-anchor", "middle");
+            centerText.setAttribute("fill", "white");
+            centerText.setAttribute("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif");
+            centerText.setAttribute("font-weight", "800");
+            centerText.setAttribute("font-size", "14"); // Kleinere Schrift
+            centerText.setAttribute("letter-spacing", "1px");
+            centerText.style.pointerEvents = "none";
+            centerText.textContent = currentProfile || "NAME";
+            svg.appendChild(centerText);
+
+            // Text-Element für das Alter im lila Kreis
+            const ageText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            ageText.setAttribute("id", "ageText");
+            ageText.setAttribute("x", centerX);
+            ageText.setAttribute("y", centerY + 15); // Unter dem Namen
+            ageText.setAttribute("text-anchor", "middle");
+            ageText.setAttribute("fill", "white");
+            ageText.setAttribute("font-family", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif");
+            ageText.setAttribute("font-weight", "600");
+            ageText.setAttribute("font-size", "12");
+            ageText.setAttribute("letter-spacing", "0.5px");
+            const currentAge = document.getElementById('ageInput') ? document.getElementById('ageInput').value : '';
+            ageText.textContent = currentAge || "ALTER";
+            ageText.style.cursor = "pointer";
+            ageText.style.pointerEvents = "auto";
+            ageText.addEventListener('click', editAge);
+            svg.appendChild(ageText);
         }
         
         function resetAll() {
@@ -3370,6 +3566,62 @@
             }
         }
         
+        function adjustCenterTextFontSize() {
+            const centerText = document.getElementById('centerText');
+            if (!centerText) return;
+            
+            const containerWidth = 70; // Verfügbare Breite im Kreis (Radius 40, mit Puffer)
+            const text = centerText.textContent || 'NAME';
+            const baseSize = 16; // Basis-Schriftgröße
+            
+            // Temporäres Element erstellen um die Textbreite zu messen
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = `800 ${baseSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif`;
+            
+            let fontSize = baseSize;
+            let textWidth = context.measureText(text).width;
+            
+            // Schriftgröße reduzieren bis der Text passt (mit etwas Puffer)
+            while (textWidth > containerWidth && fontSize > 8) {
+                fontSize -= 0.5;
+                context.font = `800 ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif`;
+                textWidth = context.measureText(text).width;
+            }
+            
+            centerText.setAttribute('font-size', fontSize);
+        }
+        
+        function updateCenterText(name) {
+            const centerText = document.getElementById('centerText');
+            if (centerText) {
+                centerText.textContent = name || 'NAME';
+                adjustCenterTextFontSize();
+            }
+        }
+
+        function updateAgeText(age) {
+            const ageText = document.getElementById('ageText');
+            if (ageText) {
+                ageText.textContent = age || 'ALTER';
+            }
+        }
+
+        function editAge() {
+            const currentAge = document.getElementById('ageInput').value || '';
+            const newAge = prompt('Alter des Kindes eingeben:', currentAge);
+            
+            if (newAge !== null) {
+                document.getElementById('ageInput').value = newAge.trim();
+                updateAgeText(newAge.trim());
+                
+                // Profil speichern
+                if (currentProfile) {
+                    saveCurrentProfile();
+                }
+            }
+        }
+        
         function startApp() {
             try {
                 // LocalStorage Check
@@ -3396,6 +3648,10 @@
                 loadProfiles();
                 loadProfileNotes();
                 initializeWheel();
+                
+                // Initiale Schriftgrößenanpassung für den lila Kreis
+                setTimeout(adjustCenterTextFontSize, 100);
+                
                 console.log('Schnecke Web-App erfolgreich initialisiert');
                 
                 // Service Worker registrieren für PWA
