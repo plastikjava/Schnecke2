@@ -2009,13 +2009,15 @@
                 const category = getCategoryForNumber(i);
                 const categoryName = getCategoryName(category);
                 const statusText = getStateDescriptionForExport(state, category, hasBothYellowAndTurquoise);
+                const note = (currentProfile && competencyNotes[currentProfile] && competencyNotes[currentProfile][i]) ? competencyNotes[currentProfile][i] : '';
                 
                 competencyData.push({
                     number: i,
                     text: kompetenzen[i],
                     category: categoryName,
                     state: state,
-                    status: statusText
+                    status: statusText,
+                    note: note
                 });
             }
             
@@ -2044,7 +2046,11 @@
                 for (let i = cat.start; i <= cat.end; i++) {
                     const comp = competencyData[i - 1];
                     content += `${i}. ${comp.text}\n`;
-                    content += `   Status: ${comp.status}\n\n`;
+                    content += `   Status: ${comp.status}\n`;
+                    if (comp.note && comp.note.trim() !== '') {
+                        content += `   Notiz: ${comp.note}\n`;
+                    }
+                    content += `\n`;
                 }
             });
             
@@ -2180,7 +2186,21 @@
                 
                 saveProfiles();
                 currentProfile = profileName;
-                loadProfile(profileName);
+                
+                // Sicherstellen, dass alle Felder, Notizen und Tests zurückgesetzt sind
+                resetAllWithoutConfirm();
+                
+                // Für neues Profil explizit alle Notizen und Tests in der Liste zurücksetzen
+                if (currentView === 'liste') {
+                    for (let i = 1; i <= 169; i++) {
+                        const notesInput = document.getElementById(`notes-${i}`);
+                        const testCheckbox = document.getElementById(`test-${i}`);
+                        if (notesInput) notesInput.value = '';
+                        if (testCheckbox) testCheckbox.checked = false;
+                    }
+                    updateListViewCircles();
+                }
+                
                 updateProfileSelect();
                 document.getElementById('nameInput').value = profileName;
                 
@@ -3145,6 +3165,15 @@
             console.log('loadNotesAndTests called for profile:', profileName);
             if (!profileName) return;
             
+            // Erst alle Notizen und Tests zurücksetzen
+            for (let i = 1; i <= 169; i++) {
+                const notesInput = document.getElementById(`notes-${i}`);
+                const testCheckbox = document.getElementById(`test-${i}`);
+                if (notesInput) notesInput.value = '';
+                if (testCheckbox) testCheckbox.checked = false;
+            }
+            
+            // Dann die vorhandenen Daten für das Profil laden
             // Lade Notizen
             if (competencyNotes[profileName]) {
                 Object.keys(competencyNotes[profileName]).forEach(number => {
