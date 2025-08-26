@@ -157,9 +157,9 @@
         
         .kompetenz-item.spielen { border-left-color: #10b981; }
         .kompetenz-item.sprechen { border-left-color: #ff6b35; }
-        .kompetenz-item.denken { border-left-color: #3b82f6; }
+        .kompetenz-item.denken { border-left-color: #059669; }
         .kompetenz-item.bewegung { border-left-color: #ec4899; }
-        .kompetenz-item.lebenspraxis { border-left-color: #8b5cf6; }
+        .kompetenz-item.lebenspraxis { border-left-color: #06b6d4; }
         .kompetenz-item.soziales { border-left-color: #ef4444; }
         
         .kompetenz-number {
@@ -307,14 +307,14 @@
         }
         
         .mode-btn.light-yellow-mode {
-            border-color: #06b6d4;
-            color: #06b6d4;
+            border-color: #9333ea;
+            color: #9333ea;
         }
         
         .mode-btn.light-yellow-mode.active {
-            background: #06b6d4;
+            background: #9333ea;
             color: white;
-            border-color: #06b6d4;
+            border-color: #9333ea;
         }
         
         .test-controls {
@@ -448,8 +448,8 @@
         }
         
         .field.lightyellow {
-            fill: #06b6d4;
-            stroke: #06b6d4;
+            fill: #9333ea;
+            stroke: #9333ea;
             filter: drop-shadow(0 2px 6px rgba(6, 182, 212, 0.4));
         }
         
@@ -461,27 +461,27 @@
         /* Bildungsbereiche Farben */
         .spielen { stroke: #10b981; }
         .spielen.full { fill: #10b981; }
-        .spielen-bg { fill: #10b981; }
+        .spielen-bg { fill: #10b981; fill-opacity: 0.15; }
         
         .sprechen { stroke: #ff6b35; }
         .sprechen.full { fill: #ff6b35; }
-        .sprechen-bg { fill: #ff6b35; }
+        .sprechen-bg { fill: #ff6b35; fill-opacity: 0.15; }
         
-        .denken { stroke: #3b82f6; }
-        .denken.full { fill: #3b82f6; }
-        .denken-bg { fill: #3b82f6; }
+        .denken { stroke: #059669; }
+        .denken.full { fill: #059669; }
+        .denken-bg { fill: #059669; fill-opacity: 0.15; }
         
         .bewegung { stroke: #ec4899; }
         .bewegung.full { fill: #ec4899; }
-        .bewegung-bg { fill: #ec4899; }
+        .bewegung-bg { fill: #ec4899; fill-opacity: 0.15; }
         
-        .lebenspraxis { stroke: #8b5cf6; }
-        .lebenspraxis.full { fill: #8b5cf6; }
-        .lebenspraxis-bg { fill: #8b5cf6; }
+        .lebenspraxis { stroke: #06b6d4; }
+        .lebenspraxis.full { fill: #06b6d4; }
+        .lebenspraxis-bg { fill: #06b6d4; fill-opacity: 0.15; }
         
         .soziales { stroke: #ef4444; }
         .soziales.full { fill: #ef4444; }
-        .soziales-bg { fill: #ef4444; }
+        .soziales-bg { fill: #ef4444; fill-opacity: 0.15; }
         
         .legend {
             display: flex;
@@ -971,9 +971,6 @@
         <div class="controls">
             <button onclick="resetAll()">Alle zurücksetzen</button>
             <button onclick="exportDataIOS()">📤 Export (JSON)</button>
-            <button onclick="shareData()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                📱 Teilen
-            </button>
             <button onclick="exportTableHTML()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
                 📊 Tabelle
             </button>
@@ -991,10 +988,6 @@
             </button>
             <label for="fileInput" class="file-label">📄 JSON importieren</label>
             <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
-            <label for="pdfInput" class="file-label" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
-                🔄 PDF Schnecke importieren
-            </label>
-            <input type="file" id="pdfInput" accept=".pdf" onchange="importPDFSchnecke(event)" style="display: none;">
         </div>
         
         <div class="legend">
@@ -1516,12 +1509,12 @@
                 .field { stroke-width: 2; fill: white; }
                 .field.full.spielen { fill: #10b981; }
                 .field.full.sprechen { fill: #ff6b35; }
-                .field.full.denken { fill: #3b82f6; }
+                .field.full.denken { fill: #059669; }
                 .field.full.bewegung { fill: #ec4899; }
-                .field.full.lebenspraxis { fill: #8b5cf6; }
+                .field.full.lebenspraxis { fill: #06b6d4; }
                 .field.full.soziales { fill: #ef4444; }
                 .field.yellow { fill: #FFC700; }
-                .field.lightyellow { fill: #06b6d4; }
+                .field.lightyellow { fill: #9333ea; }
                 .field-text { font-family: Arial, sans-serif; font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #333; }
                 .field.full .field-text { fill: white; }
                 .field.yellow .field-text { fill: #333; }
@@ -1529,17 +1522,17 @@
                 .sector-label { fill: #333; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; text-anchor: middle; }
                 .sector-background { fill-opacity: 0.08; }
                 .sector-border { fill: none; stroke-width: 2; stroke-opacity: 0.3; stroke-dasharray: 5, 5; }
-                .spielen-bg { fill: #10b981; }
-                .sprechen-bg { fill: #ff6b35; }
-                .denken-bg { fill: #3b82f6; }
-                .bewegung-bg { fill: #ec4899; }
-                .lebenspraxis-bg { fill: #8b5cf6; }
-                .soziales-bg { fill: #ef4444; }
+                .spielen-bg { fill: #10b981; fill-opacity: 0.15; }
+                .sprechen-bg { fill: #ff6b35; fill-opacity: 0.15; }
+                .denken-bg { fill: #059669; fill-opacity: 0.15; }
+                .bewegung-bg { fill: #ec4899; fill-opacity: 0.15; }
+                .lebenspraxis-bg { fill: #06b6d4; fill-opacity: 0.15; }
+                .soziales-bg { fill: #ef4444; fill-opacity: 0.15; }
                 .spielen { stroke: #10b981; }
                 .sprechen { stroke: #ff6b35; }
-                .denken { stroke: #3b82f6; }
+                .denken { stroke: #059669; }
                 .bewegung { stroke: #ec4899; }
-                .lebenspraxis { stroke: #8b5cf6; }
+                .lebenspraxis { stroke: #06b6d4; }
                 .soziales { stroke: #ef4444; }
             `;
             
@@ -1569,33 +1562,33 @@
         <!-- Erste Reihe -->
         <g transform="translate(0, 30)">
             <circle cx="12" cy="0" r="10" fill="#10b981" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Spielen (1-38)</text>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Spielen (1-38)</text>
         </g>
         
         <g transform="translate(200, 30)">
             <circle cx="12" cy="0" r="10" fill="#ff6b35" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Sprechen, Hören, Sehen (39-61)</text>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Sprechen, Hören, Sehen (39-61)</text>
         </g>
         
         <g transform="translate(480, 30)">
-            <circle cx="12" cy="0" r="10" fill="#3b82f6" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Denken (62-90)</text>
+            <circle cx="12" cy="0" r="10" fill="#059669" stroke="#333" stroke-width="1"/>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Denken (62-90)</text>
         </g>
         
         <!-- Zweite Reihe -->
         <g transform="translate(0, 60)">
             <circle cx="12" cy="0" r="10" fill="#ec4899" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Bewegung (91-114)</text>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Bewegung (91-114)</text>
         </g>
         
         <g transform="translate(200, 60)">
-            <circle cx="12" cy="0" r="10" fill="#8b5cf6" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Lebenspraxis (115-143)</text>
+            <circle cx="12" cy="0" r="10" fill="#06b6d4" stroke="#333" stroke-width="1"/>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Lebenspraxis (115-143)</text>
         </g>
         
         <g transform="translate(480, 60)">
             <circle cx="12" cy="0" r="10" fill="#ef4444" stroke="#333" stroke-width="1"/>
-            <text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Soziales/Emotionalität (144-169)</text>
+            <text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Soziales/Emotionalität (144-169)</text>
         </g>
         
         <!-- Status-Legende -->
@@ -1622,7 +1615,7 @@
             </g>
             
             <g transform="translate(460, 0)">
-                <circle cx="8" cy="25" r="7" fill="#20d5d5" stroke="#20d5d5" stroke-width="2"/>
+                <circle cx="8" cy="25" r="7" fill="#9333ea" stroke="#9333ea" stroke-width="2"/>
                 <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 3. Kitajahr</text>
             </g>
         </g>
@@ -1684,12 +1677,12 @@
                 .field { stroke-width: 2; fill: white; }
                 .field.full.spielen { fill: #10b981; }
                 .field.full.sprechen { fill: #ff6b35; }
-                .field.full.denken { fill: #3b82f6; }
+                .field.full.denken { fill: #059669; }
                 .field.full.bewegung { fill: #ec4899; }
-                .field.full.lebenspraxis { fill: #8b5cf6; }
+                .field.full.lebenspraxis { fill: #06b6d4; }
                 .field.full.soziales { fill: #ef4444; }
                 .field.yellow { fill: #FFC700; }
-                .field.lightyellow { fill: #06b6d4; }
+                .field.lightyellow { fill: #9333ea; }
                 .field-text { font-family: Arial, sans-serif; font-size: 9px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #333; }
                 .field.full .field-text { fill: white; }
                 .field.yellow .field-text { fill: #333; }
@@ -1697,17 +1690,17 @@
                 .sector-label { fill: #333; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600; text-anchor: middle; }
                 .sector-background { fill-opacity: 0.08; }
                 .sector-border { fill: none; stroke-width: 2; stroke-opacity: 0.3; stroke-dasharray: 5, 5; }
-                .spielen-bg { fill: #10b981; }
-                .sprechen-bg { fill: #ff6b35; }
-                .denken-bg { fill: #3b82f6; }
-                .bewegung-bg { fill: #ec4899; }
-                .lebenspraxis-bg { fill: #8b5cf6; }
-                .soziales-bg { fill: #ef4444; }
+                .spielen-bg { fill: #10b981; fill-opacity: 0.15; }
+                .sprechen-bg { fill: #ff6b35; fill-opacity: 0.15; }
+                .denken-bg { fill: #059669; fill-opacity: 0.15; }
+                .bewegung-bg { fill: #ec4899; fill-opacity: 0.15; }
+                .lebenspraxis-bg { fill: #06b6d4; fill-opacity: 0.15; }
+                .soziales-bg { fill: #ef4444; fill-opacity: 0.15; }
                 .spielen { stroke: #10b981; }
                 .sprechen { stroke: #ff6b35; }
-                .denken { stroke: #3b82f6; }
+                .denken { stroke: #059669; }
                 .bewegung { stroke: #ec4899; }
-                .lebenspraxis { stroke: #8b5cf6; }
+                .lebenspraxis { stroke: #06b6d4; }
                 .soziales { stroke: #ef4444; }
             `;
             
@@ -1727,12 +1720,12 @@
     '<g transform="translate(50, 120)">' + cleanSvgData + '</g>' +
     '<g transform="translate(100, 850)">' +
         '<text x="0" y="0" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#333">Legende:</text>' +
-        '<g transform="translate(0, 30)"><circle cx="12" cy="0" r="10" fill="#10b981" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Spielen (1-38)</text></g>' +
-        '<g transform="translate(200, 30)"><circle cx="12" cy="0" r="10" fill="#ff6b35" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Sprechen, Hören, Sehen (39-61)</text></g>' +
-        '<g transform="translate(480, 30)"><circle cx="12" cy="0" r="10" fill="#3b82f6" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Denken (62-90)</text></g>' +
-        '<g transform="translate(0, 60)"><circle cx="12" cy="0" r="10" fill="#ec4899" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Bewegung (91-114)</text></g>' +
-        '<g transform="translate(200, 60)"><circle cx="12" cy="0" r="10" fill="#8b5cf6" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Lebenspraxis (115-143)</text></g>' +
-        '<g transform="translate(480, 60)"><circle cx="12" cy="0" r="10" fill="#ef4444" stroke="#333" stroke-width="1"/><text x="30" y="5" font-family="Arial, sans-serif" font-size="14" fill="#333">Soziales/Emotionalität (144-169)</text></g>' +
+        '<g transform="translate(0, 30)"><circle cx="12" cy="0" r="10" fill="#10b981" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Spielen (1-38)</text></g>' +
+        '<g transform="translate(200, 30)"><circle cx="12" cy="0" r="10" fill="#ff6b35" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Sprechen, Hören, Sehen (39-61)</text></g>' +
+        '<g transform="translate(480, 30)"><circle cx="12" cy="0" r="10" fill="#059669" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Denken (62-90)</text></g>' +
+        '<g transform="translate(0, 60)"><circle cx="12" cy="0" r="10" fill="#ec4899" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Bewegung (91-114)</text></g>' +
+        '<g transform="translate(200, 60)"><circle cx="12" cy="0" r="10" fill="#06b6d4" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Lebenspraxis (115-143)</text></g>' +
+        '<g transform="translate(480, 60)"><circle cx="12" cy="0" r="10" fill="#ef4444" stroke="#333" stroke-width="1"/><text x="28" y="5" font-family="Arial, sans-serif" font-size="13" fill="#333">Soziales/Emotionalität (144-169)</text></g>' +
         '<g transform="translate(0, 100)">' +
             '<text x="0" y="0" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Status:</text>' +
             '<circle cx="8" cy="25" r="7" fill="white" stroke="#333" stroke-width="2"/>' +
@@ -1740,7 +1733,7 @@
             '<g transform="translate(110, 0)"><circle cx="8" cy="25" r="7" fill="white" stroke="#10b981" stroke-width="2"/><path d="M 4 25 A 4 4 0 0 0 12 25 Z" fill="#10b981"/><text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Teilweise erfüllt</text></g>' +
             '<g transform="translate(230, 0)"><circle cx="8" cy="25" r="7" fill="#10b981" stroke="#10b981" stroke-width="2"/><text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Voll erfüllt</text></g>' +
             '<g transform="translate(310, 0)"><circle cx="8" cy="25" r="7" fill="#FFC700" stroke="#FFC700" stroke-width="2"/><text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 2. Kitajahr</text></g>' +
-            '<g transform="translate(460, 0)"><circle cx="8" cy="25" r="7" fill="#20d5d5" stroke="#20d5d5" stroke-width="2"/><text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 3. Kitajahr</text></g>' +
+            '<g transform="translate(460, 0)"><circle cx="8" cy="25" r="7" fill="#9333ea" stroke="#9333ea" stroke-width="2"/><text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 3. Kitajahr</text></g>' +
         '</g>' +
     '</g>' +
 '</svg>';
@@ -1934,9 +1927,9 @@
                     }
                     .category-spielen { border-left-color: #10b981; }
                     .category-sprechen { border-left-color: #ff6b35; }
-                    .category-denken { border-left-color: #3b82f6; }
+                    .category-denken { border-left-color: #059669; }
                     .category-bewegung { border-left-color: #ec4899; }
-                    .category-lebenspraxis { border-left-color: #8b5cf6; }
+                    .category-lebenspraxis { border-left-color: #06b6d4; }
                     .category-soziales { border-left-color: #ef4444; }
                     .print-btn {
                         background: #667eea;
@@ -2409,7 +2402,7 @@
                 if (normalHalf) normalHalf.style.display = 'none';
                 if (yellowHalf) {
                     yellowHalf.style.display = 'block';
-                    yellowHalf.setAttribute('fill', '#06b6d4');
+                    yellowHalf.setAttribute('fill', '#9333ea');
                 }
                 if (text) text.style.fill = '#333';
             } else if (state === "7") {
@@ -2418,7 +2411,7 @@
                 if (normalHalf) normalHalf.style.display = 'block';
                 if (yellowHalf) {
                     yellowHalf.style.display = 'block';
-                    yellowHalf.setAttribute('fill', '#06b6d4');
+                    yellowHalf.setAttribute('fill', '#9333ea');
                 }
                 if (text) text.style.fill = '#333';
             } else if (state === "8") {
@@ -2437,7 +2430,7 @@
                 }
                 if (yellowHalf) {
                     yellowHalf.style.display = 'block';
-                    yellowHalf.setAttribute('fill', '#06b6d4'); // Türkise Hälfte
+                    yellowHalf.setAttribute('fill', '#9333ea'); // Violette Hälfte
                 }
                 if (text) text.style.fill = '#333';
             } else if (state === "10") {
@@ -2445,7 +2438,7 @@
                 field.style.fill = 'white';
                 if (normalHalf) {
                     normalHalf.style.display = 'block';
-                    normalHalf.setAttribute('fill', '#06b6d4'); // Türkise Hälfte
+                    normalHalf.setAttribute('fill', '#9333ea'); // Violette Hälfte
                 }
                 if (yellowHalf) {
                     yellowHalf.style.display = 'block';
@@ -2459,9 +2452,9 @@
         const sectors = [
             { name: 'spielen', label: 'Spielen', start: 1, end: 38, startAngle: 0, color: '#10b981' },
             { name: 'sprechen', label: 'Sprechen, Hören, Sehen', start: 39, end: 61, startAngle: 60, color: '#ff6b35' },
-            { name: 'denken', label: 'Denken', start: 62, end: 90, startAngle: 120, color: '#3b82f6' },
+            { name: 'denken', label: 'Denken', start: 62, end: 90, startAngle: 120, color: '#059669' },
             { name: 'bewegung', label: 'Bewegung', start: 91, end: 114, startAngle: 180, color: '#ec4899' },
-            { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143, startAngle: 240, color: '#8b5cf6' },
+            { name: 'lebenspraxis', label: 'Lebenspraxis', start: 115, end: 143, startAngle: 240, color: '#06b6d4' },
             { name: 'soziales', label: 'Soziales/Emotionalität', start: 144, end: 169, startAngle: 300, color: '#ef4444' }
         ];
         
@@ -2571,12 +2564,12 @@
             const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
             
             const bg = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            bg.setAttribute("d", describeArc(centerX, centerY, 295, sector.startAngle, sector.startAngle + 60));
+            bg.setAttribute("d", describeArc(centerX, centerY, 310, sector.startAngle, sector.startAngle + 60));
             bg.setAttribute("class", `sector-background ${sector.name}-bg`);
             g.appendChild(bg);
             
             const border = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            border.setAttribute("d", describeArc(centerX, centerY, 295, sector.startAngle, sector.startAngle + 60));
+            border.setAttribute("d", describeArc(centerX, centerY, 310, sector.startAngle, sector.startAngle + 60));
             border.setAttribute("class", `sector-border`);
             border.setAttribute("stroke", sector.color);
             g.appendChild(border);
@@ -2610,7 +2603,21 @@
             const startOffset = 9;
             
             let angle;
-            if (totalInRing === 1) {
+            
+            // Spezielle Behandlung für die ersten beiden Punkte jedes Sektors
+            const isFirstTwoInSector = (number === 1 || number === 2) || 
+                                       (number === 39 || number === 40) || 
+                                       (number === 62 || number === 63) || 
+                                       (number === 91 || number === 92) || 
+                                       (number === 115 || number === 116) || 
+                                       (number === 144 || number === 145);
+            
+            if (isFirstTwoInSector) {
+                // Setze diese Punkte näher zur Sektormitte
+                const isFirstPoint = (number === 1 || number === 39 || number === 62 || number === 91 || number === 115 || number === 144);
+                const centerOffset = isFirstPoint ? -12 : 12; // Links und rechts von der Sektormitte
+                angle = sector.startAngle + 30 + centerOffset; // 30 = Sektormitte
+            } else if (totalInRing === 1) {
                 angle = sector.startAngle + 30;
             } else {
                 const angleStep = sectorWidth / (totalInRing - 1);
@@ -3080,9 +3087,9 @@
         const categoryColors = {
             'spielen': '#10b981',        // Grün
             'sprechen': '#ff6b35',       // Orange (dunkel)
-            'denken': '#3b82f6',         // Blau
+            'denken': '#059669',         // Dunkelgrün
             'bewegung': '#ec4899',       // Pink
-            'lebenspraxis': '#8b5cf6',   // Lila/Violett
+            'lebenspraxis': '#06b6d4',   // Hellblau
             'soziales': '#ef4444'        // Rot
         };
         
@@ -3141,14 +3148,14 @@
                 circle.style.background = `linear-gradient(to right, ${categoryColor} 50%, #06b6d4 50%)`;
             } else if (state === "8") {
                 // Ganz türkis
-                circle.style.background = '#06b6d4';
-                circle.style.border = '2px solid #06b6d4';
+                circle.style.background = '#9333ea';
+                circle.style.border = '2px solid #9333ea';
             } else if (state === "9") {
                 // Halb gelb + halb türkis
-                circle.style.background = `linear-gradient(to right, #FFC700 50%, #06b6d4 50%)`;
+                circle.style.background = `linear-gradient(to right, #FFC700 50%, #9333ea 50%)`;
             } else if (state === "10") {
                 // Halb türkis + halb gelb
-                circle.style.background = `linear-gradient(to right, #06b6d4 50%, #FFC700 50%)`;
+                circle.style.background = `linear-gradient(to right, #9333ea 50%, #FFC700 50%)`;
             }
         }
         
@@ -3375,7 +3382,7 @@
             const positions = [];
             const centerX = width / 2;
             const centerY = height / 2;
-            const baseRadius = Math.min(width, height) * 0.15; // Basis-Radius
+            const baseRadius = Math.min(width, height) * 0.18; // Basis-Radius (vergrößert für mehr Abstand)
             
             // Definiere Ring-Layout basierend auf dem echten Schnecken-Design
             const rings = [
@@ -3397,7 +3404,7 @@
                 sprechen: { start: 39, end: 61, baseAngle: 90 },      // Orange - rechts
                 denken: { start: 62, end: 90, baseAngle: 180 },       // Dunkelgrün - unten  
                 bewegung: { start: 91, end: 114, baseAngle: 240 },    // Pink - links unten
-                lebenspraxis: { start: 115, end: 143, baseAngle: 300 }, // Hellblau - links
+                lebenspraxis: { start: 115, end: 143, baseAngle: 300 }, // Violett - links
                 soziales: { start: 144, end: 169, baseAngle: 0 }      // Rot - oben
             };
             
@@ -3416,12 +3423,37 @@
                     }
                     
                     // Berechne Position basierend auf Ring und Index
-                    const angle = (index * angleStep - 90) * Math.PI / 180; // -90° um bei 12 Uhr zu starten
+                    let angle = (index * angleStep - 90) * Math.PI / 180; // -90° um bei 12 Uhr zu starten
+                    
+                    // Spezielle Anpassung für erste zwei Punkte jedes Sektors - rücke sie zur Sektormitte
+                    const isFirstTwoInSector = (number === 1 || number === 2) || 
+                                               (number === 39 || number === 40) || 
+                                               (number === 62 || number === 63) || 
+                                               (number === 91 || number === 92) || 
+                                               (number === 115 || number === 116) || 
+                                               (number === 144 || number === 145);
+                    
+                    if (isFirstTwoInSector) {
+                        // Bestimme Sektor und Sektormitte
+                        let sectorCenter;
+                        if (number <= 2) sectorCenter = 30;
+                        else if (number <= 40) sectorCenter = 90;
+                        else if (number <= 63) sectorCenter = 150;
+                        else if (number <= 92) sectorCenter = 210;
+                        else if (number <= 116) sectorCenter = 270;
+                        else sectorCenter = 330;
+                        
+                        const centerAngle = (sectorCenter - 90) * Math.PI / 180; // -90° für 12 Uhr Start
+                        const isFirstPoint = (number === 1 || number === 39 || number === 62 || number === 91 || number === 115 || number === 144);
+                        const offset = isFirstPoint ? -0.4 : 0.4; // Größerer Abstand zwischen den beiden Punkten
+                        angle = centerAngle + offset;
+                    }
+                    
                     const radius = ring.radius;
                     
-                    // Kleine Zufallsvariation um natürlicheres Layout zu erzeugen
-                    const radiusVariation = (Math.random() - 0.5) * baseRadius * 0.1;
-                    const angleVariation = (Math.random() - 0.5) * 0.1;
+                    // Kleine Zufallsvariation um natürlicheres Layout zu erzeugen (aber nicht für erste zwei Punkte)
+                    const radiusVariation = isFirstTwoInSector ? 0 : (Math.random() - 0.5) * baseRadius * 0.1;
+                    const angleVariation = isFirstTwoInSector ? 0 : (Math.random() - 0.5) * 0.1;
                     
                     const x = centerX + (radius + radiusVariation) * Math.cos(angle + angleVariation);
                     const y = centerY + (radius + radiusVariation) * Math.sin(angle + angleVariation);
@@ -3612,7 +3644,7 @@
         }
         
         function isBlueColor(color) {
-            // Hellblau für Lebenspraxis
+            // Violett für Lebenspraxis
             return color.b > color.r + 10 && color.b > 100 && color.g > color.r;
         }
         
