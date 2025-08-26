@@ -177,6 +177,19 @@
             align-items: center;
         }
         
+        /* Profile Selector versteckt nur in Listen-Ansicht */
+        .sticky-header.list-active .profile-selector {
+            display: none !important;
+            margin: 0 !important;
+            height: 0 !important;
+        }
+        
+        /* Profile Selector explizit sichtbar in Schnecken-Ansicht */
+        .sticky-header:not(.list-active) .profile-selector {
+            display: flex !important;
+            justify-content: center !important;
+        }
+        
         .profile-select {
             padding: 8px 15px;
             border: 2px solid #667eea;
@@ -214,6 +227,12 @@
             justify-content: center;
             gap: 15px;
             margin-bottom: 15px;
+        }
+        
+        /* View-Selector in Listen-Ansicht mit extra Margin für perfekte Zentrierung */
+        .sticky-header.list-active .view-selector {
+            margin-top: 10px;
+            margin-bottom: 25px;
         }
         
         .view-btn {
@@ -670,18 +689,18 @@
         
         .list-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 12px;
         }
         
         .list-header h3 {
             color: #667eea;
-            margin-bottom: 5px;
-            font-size: 24px;
+            margin-bottom: 2px;
+            font-size: 12px;
         }
         
         .list-info {
             color: #666;
-            font-size: 14px;
+            font-size: 7px;
             opacity: 0.8;
         }
         
@@ -1583,18 +1602,28 @@
         <g transform="translate(0, 100)">
             <text x="0" y="0" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Status:</text>
             
-            <circle cx="12" cy="25" r="10" fill="white" stroke="#333" stroke-width="2"/>
-            <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Nicht erfüllt</text>
+            <circle cx="8" cy="25" r="7" fill="white" stroke="#333" stroke-width="2"/>
+            <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Nicht erfüllt</text>
             
-            <g transform="translate(150, 0)">
-                <circle cx="12" cy="25" r="10" fill="white" stroke="#10b981" stroke-width="2"/>
-                <path d="M 7 25 A 5 5 0 0 0 17 25 Z" fill="#10b981"/>
-                <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Teilweise erfüllt</text>
+            <g transform="translate(110, 0)">
+                <circle cx="8" cy="25" r="7" fill="white" stroke="#10b981" stroke-width="2"/>
+                <path d="M 4 25 A 4 4 0 0 0 12 25 Z" fill="#10b981"/>
+                <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Teilweise erfüllt</text>
             </g>
             
-            <g transform="translate(350, 0)">
-                <circle cx="12" cy="25" r="10" fill="#10b981" stroke="#10b981" stroke-width="2"/>
-                <text x="30" y="30" font-family="Arial, sans-serif" font-size="14" fill="#333">Voll erfüllt</text>
+            <g transform="translate(230, 0)">
+                <circle cx="8" cy="25" r="7" fill="#10b981" stroke="#10b981" stroke-width="2"/>
+                <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Voll erfüllt</text>
+            </g>
+            
+            <g transform="translate(310, 0)">
+                <circle cx="8" cy="25" r="7" fill="#FFC700" stroke="#FFC700" stroke-width="2"/>
+                <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 2. Kitajahr</text>
+            </g>
+            
+            <g transform="translate(460, 0)">
+                <circle cx="8" cy="25" r="7" fill="#20d5d5" stroke="#20d5d5" stroke-width="2"/>
+                <text x="22" y="30" font-family="Arial, sans-serif" font-size="12" fill="#333">Fortschritt 3. Kitajahr</text>
             </g>
         </g>
     </g>
@@ -1688,8 +1717,22 @@
                     <title>Schnecke - ${name}</title>
                     <style>
                         @media print {
-                            @page { size: A4; margin: 1cm; }
+                            @page { 
+                                size: A4; 
+                                margin: 1cm;
+                                /* Entfernt Browser Kopf- und Fußzeilen */
+                                margin-top: 0;
+                                margin-bottom: 0;
+                            }
                             body { margin: 0; font-family: Arial, sans-serif; }
+                            /* Verstecke Browser-Standard Kopf- und Fußzeilen */
+                            @page { margin: 0; }
+                            html, body { 
+                                height: 100vh; 
+                                margin: 0; 
+                                padding: 0; 
+                                overflow: hidden; 
+                            }
                         }
                         body { font-family: Arial, sans-serif; padding: 20px; }
                         .header { text-align: center; margin-bottom: 20px; }
@@ -1717,10 +1760,20 @@
                         <div class="legend-item"><span class="legend-dot" style="background: #ec4899;"></span>Bewegung (91-114)</div>
                         <div class="legend-item"><span class="legend-dot" style="background: #06b6d4;"></span>Lebenspraxis (115-143)</div>
                         <div class="legend-item"><span class="legend-dot" style="background: #ef4444;"></span>Soziales/Emotionalität (144-169)</div>
+                        
+                        <h3 style="margin-top: 20px;">Status:</h3>
+                        <div class="legend-item"><span class="legend-dot" style="background: white; border: 2px solid #666;"></span>Nicht erfüllt</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #4ade80;"></span>Teilweise erfüllt</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #22c55e;"></span>Voll erfüllt</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #FFC700;"></span>Fortschritt 2. Kitajahr</div>
+                        <div class="legend-item"><span class="legend-dot" style="background: #20d5d5;"></span>Fortschritt 3. Kitajahr</div>
                     </div>
                     
                     <scr' + 'ipt>
                         window.onload = function() {
+                            // Informiere den Benutzer über Druckeinstellungen
+                            alert('💡 Tipp zum Drucken:\\n\\n1. Druckdialog öffnet sich automatisch\\n2. Klicken Sie auf "Weitere Einstellungen"\\n3. Deaktivieren Sie "Kopf- und Fußzeilen"\\n4. Aktivieren Sie "Hintergrundgrafiken" für bessere Farben');
+                            
                             setTimeout(() => {
                                 window.print();
                                 window.close();
@@ -2686,6 +2739,8 @@
                 document.getElementById('testControls').style.display = 'none';
                 // Sticky header deaktivieren in Schnecken-Ansicht
                 document.getElementById('stickyHeader').classList.remove('list-active');
+                // Profil-Controls anzeigen in Schnecken-Ansicht
+                document.querySelector('.profile-selector').style.display = 'block';
             } else {
                 document.querySelector('.view-btn.liste').classList.add('active');
                 document.getElementById('wheelContainer').style.display = 'none';
@@ -2694,6 +2749,8 @@
                 initializeListView();
                 // Sticky header aktivieren in Listen-Ansicht
                 document.getElementById('stickyHeader').classList.add('list-active');
+                // Profil-Controls verstecken in Listen-Ansicht
+                document.querySelector('.profile-selector').style.display = 'none';
             }
         }
         
